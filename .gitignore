@@ -1,0 +1,15 @@
+.DS_Store
+.dart_tool/
+
+.packages
+.pub/
+
+.idea
+ios/.generated/
+ios/Pods/
+ios/Podfile.lock
+build/
+
+.flutter-plugins
+packages
+pubspec.lock
