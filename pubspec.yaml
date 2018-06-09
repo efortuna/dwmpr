@@ -11,6 +11,8 @@ dependencies:
   font_awesome_flutter: ^7.0.0
   http: ^0.11.3
 
+  http: ^0.11.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
