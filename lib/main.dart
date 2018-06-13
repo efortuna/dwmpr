@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'dart:math' as math;
 import 'dart:convert';
+import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
 
 void main() => runApp(MyApp());
 
@@ -79,6 +81,84 @@ class RepoWidget extends StatelessWidget {
   }
 }
 
+class FancyFab extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => FancyFabState();
+}
+
+class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
+  AnimationController _controller;
+
+  static const List<IconData> icons = const [ Icons.check, Icons.do_not_disturb, Icons.thumb_up, Icons.thumb_down, FontAwesomeIcons.heart ];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = new AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+  }
+
+  Widget build(BuildContext context) {
+    return new Column(
+        mainAxisSize: MainAxisSize.min,
+        children: new List<Widget>.generate(icons.length, (int index) {
+          return new ScaleTransition(
+              scale: new CurvedAnimation(
+                parent: _controller,
+                curve:  Curves.easeOut
+              ),
+              child: new Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: new FloatingActionButton(
+                  heroTag: null,
+                  backgroundColor: Theme.of(context).cardColor,
+                  mini: true,
+                  child: new Icon(icons[index], color: Theme.of(context).accentColor),
+                  onPressed: () {},
+                ),
+              ),
+          );
+        }).toList()
+          ..add(
+            new FloatingActionButton(
+              child: new AnimatedBuilder(
+                animation: _controller,
+                builder: (BuildContext context, Widget child) {
+                  return new Transform.rotate(
+                    angle: _controller.value * math.pi,
+                    child: new Icon(
+                        _controller.isDismissed ? Icons.code : Icons.close),
+                  );
+                },
+              ),
+              onPressed: () {
+                if (_controller.isDismissed) {
+                  _controller.forward();
+                } else {
+                  _controller.reverse();
+                }
+              },
+            ),
+          ),
+    );
+  }
+
+  acceptPR(BuildContext context) {
+    // TODO(efortuna): Implement.
+    var url = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
+    http.put('$url/merge');
+    Navigator.pop(context);
+  }
+
+  closePR(BuildContext context) {
+    // TODO(efortuna): Implement.
+
+    Navigator.pop(context);
+  }
+}
+
 class ReviewPage extends StatelessWidget {
   final String prDiff;
 
@@ -89,37 +169,15 @@ class ReviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Review Pull Request')),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-                child: SingleChildScrollView(
-                    child: Padding(
-              padding: const EdgeInsets.all(20.0),
-                      // TODO(efortuna): Make this prettier.
-                      // Perhaps https://github.com/toufikzitouni/flutter-bidirectional_scrollview_plugin
-              child: RichText(
-                  softWrap: false, text: TextSpan(children: styledCode())),
-            ))),
-            Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RaisedButton.icon(
-                      onPressed: () => closePR(context),
-                      icon: Icon(Icons.close),
-                      label: Text('Close Request'),
-                      color: Colors.red),
-                ),
-                RaisedButton.icon(
-                    onPressed: () => acceptPR(context),
-                    icon: Icon(Icons.check),
-                    label: Text('Accept Pull Request'),
-                    color: Colors.green),
-              ],
-            ),
-          ],
-        ));
+      appBar: AppBar(title: Text('Review Pull Request')),
+      body: BidirectionalScrollViewPlugin(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: RichText(
+              softWrap: false, text: TextSpan(children: styledCode())),
+        ),
+      ),
+      floatingActionButton: FancyFab(),);
   }
 
   List<TextSpan> styledCode() {
@@ -136,17 +194,5 @@ class ReviewPage extends StatelessWidget {
           style: TextStyle(color: color, fontFamily: 'monospace')));
     }
     return lines;
-  }
-
-  acceptPR(BuildContext context) {
-    // TODO(efortuna): Implement.
-
-    Navigator.pop(context);
-  }
-
-  closePR(BuildContext context) {
-    // TODO(efortuna): Implement.
-
-    Navigator.pop(context);
   }
 }
