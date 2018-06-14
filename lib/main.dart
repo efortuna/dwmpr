@@ -89,7 +89,13 @@ class FancyFab extends StatefulWidget {
 class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   AnimationController _controller;
 
-  static const List<IconData> icons = const [ Icons.check, Icons.do_not_disturb, Icons.thumb_up, Icons.thumb_down, FontAwesomeIcons.heart ];
+  static const List<IconData> icons = const [
+    Icons.check,
+    Icons.do_not_disturb,
+    Icons.thumb_up,
+    Icons.thumb_down,
+    FontAwesomeIcons.heart
+  ];
 
   @override
   void initState() {
@@ -102,46 +108,54 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
 
   Widget build(BuildContext context) {
     return new Column(
-        mainAxisSize: MainAxisSize.min,
-        children: new List<Widget>.generate(icons.length, (int index) {
-          return new ScaleTransition(
-              scale: new CurvedAnimation(
-                parent: _controller,
-                curve:  Curves.easeOut
-              ),
-              child: new Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: new FloatingActionButton(
-                  heroTag: null,
-                  backgroundColor: Theme.of(context).cardColor,
-                  mini: true,
-                  child: new Icon(icons[index], color: Theme.of(context).accentColor),
-                  onPressed: () {},
-                ),
-              ),
-          );
-        }).toList()
-          ..add(
-            new FloatingActionButton(
-              child: new AnimatedBuilder(
-                animation: _controller,
-                builder: (BuildContext context, Widget child) {
-                  return new Transform.rotate(
-                    angle: _controller.value * math.pi,
-                    child: new Icon(
-                        _controller.isDismissed ? Icons.code : Icons.close),
-                  );
-                },
-              ),
+      mainAxisSize: MainAxisSize.min,
+      children: new List<Widget>.generate(icons.length, (int index) {
+        return new ScaleTransition(
+          scale:
+              new CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+          child: new Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: new FloatingActionButton(
+              heroTag: null,
+              backgroundColor: Theme.of(context).cardColor,
+              mini: true,
+              child:
+                  new Icon(icons[index], color: Theme.of(context).accentColor),
               onPressed: () {
-                if (_controller.isDismissed) {
-                  _controller.forward();
+                if (icons[index] == Icons.check) {
+                  acceptPR(context);
+                } else if (icons[index] == Icons.do_not_disturb) {
+                  closePR(context);
                 } else {
-                  _controller.reverse();
+                  addEmoji(context, icons[index]);
                 }
+                Navigator.pop(context);
               },
             ),
           ),
+        );
+      }).toList()
+        ..add(
+          new FloatingActionButton(
+            child: new AnimatedBuilder(
+              animation: _controller,
+              builder: (BuildContext context, Widget child) {
+                return new Transform.rotate(
+                  angle: _controller.value * math.pi,
+                  child: new Icon(
+                      _controller.isDismissed ? Icons.code : Icons.close),
+                );
+              },
+            ),
+            onPressed: () {
+              if (_controller.isDismissed) {
+                _controller.forward();
+              } else {
+                _controller.reverse();
+              }
+            },
+          ),
+        ),
     );
   }
 
@@ -149,13 +163,14 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     // TODO(efortuna): Implement.
     var url = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
     http.put('$url/merge');
-    Navigator.pop(context);
   }
 
   closePR(BuildContext context) {
     // TODO(efortuna): Implement.
+  }
 
-    Navigator.pop(context);
+  void addEmoji(BuildContext context, IconData icon) {
+    // TODO(efortuna): Implement.
   }
 }
 
@@ -173,11 +188,12 @@ class ReviewPage extends StatelessWidget {
       body: BidirectionalScrollViewPlugin(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
-          child: RichText(
-              softWrap: false, text: TextSpan(children: styledCode())),
+          child:
+              RichText(softWrap: false, text: TextSpan(children: styledCode())),
         ),
       ),
-      floatingActionButton: FancyFab(),);
+      floatingActionButton: FancyFab(),
+    );
   }
 
   List<TextSpan> styledCode() {

@@ -12,8 +12,6 @@ dependencies:
   http: ^0.11.3
   bidirectional_scroll_view: ^0.0.5
 
-  http: ^0.11.3
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
