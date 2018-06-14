@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:math' as math;
 import 'dart:convert';
 import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
+import 'package:dwmpr/github/token.dart';
 
 void main() => runApp(MyApp());
 
@@ -18,8 +19,17 @@ var repoInfo = {
   'forks_count': '5',
 };
 // Example URL.
-var diffUrl =
-    'https://patch-diff.githubusercontent.com/raw/flutter/flutter/pull/18193.diff';
+// You want to start with listing the PRs:
+// https://api.github.com/repos/efortuna/test_commits/pulls
+// We'll pass in the issue_url (for commenting) as well as the diff_url
+// (for displaying the diff)
+// The logic for getting that will be in GraphQL.
+final diffUrl = 'https://github.com/efortuna/test_commits/pull/2.diff';
+//'https://patch-diff.githubusercontent.com/raw/flutter/flutter/pull/18193.diff';
+final issueUrl = 'https://api.github.com/repos/efortuna/test_commits/issues/2';
+final reviewUrl = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
+final testRepo = 'https://api.github.com/repos/efortuna/test_commits/';
+final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -51,8 +61,9 @@ class MyHomePage extends StatelessWidget {
                   style:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0)),
               Expanded(
-                child:
-                    ListView(children: List.generate(15, (i) => RepoWidget())),
+                child: ListView(
+                    children: List.generate(
+                        15, (i) => RepoWidget(diffUrl, issueUrl))),
               ),
             ],
           ),
@@ -61,16 +72,22 @@ class MyHomePage extends StatelessWidget {
 }
 
 class RepoWidget extends StatelessWidget {
+  final String diffUrl;
+  final String issueUrl;
+
+  RepoWidget(this.diffUrl, this.issueUrl);
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
         title: Text(repoInfo['name']),
-        // Might want to change how we navigate to the PRs. Maybe a FAB somewhere?
         onTap: () async {
           var result =
               await http.get(diffUrl).then((response) => response.body);
-          return Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ReviewPage(result)));
+          return Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ReviewPage(result, issueUrl)));
         },
         trailing: Row(children: [
           Icon(Icons.star),
@@ -82,6 +99,10 @@ class RepoWidget extends StatelessWidget {
 }
 
 class FancyFab extends StatefulWidget {
+  final String issueUrl;
+
+  FancyFab(this.issueUrl);
+
   @override
   State<StatefulWidget> createState() => FancyFabState();
 }
@@ -127,7 +148,6 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
                 } else {
                   addEmoji(context, icons[index]);
                 }
-                Navigator.pop(context);
               },
             ),
           ),
@@ -158,26 +178,54 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   }
 
   acceptPR(BuildContext context) {
-    // TODO(efortuna): Implement.
-    var url = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
-    http.put('$url/merge');
+    http.put('$reviewUrl/merge',
+        headers: {'Authorization': 'token $token'}).then(respondToRequest);
   }
 
   closePR(BuildContext context) {
-    // TODO(efortuna): Implement.
+    http
+        .patch(reviewUrl,
+            headers: {'Authorization': 'token $token'},
+            body: '{"state": "closed"}')
+        .then(respondToRequest);
   }
 
   void addEmoji(BuildContext context, IconData icon) {
-    // TODO(efortuna): Implement.
+    String reaction = 'heart';
+    if (icon == Icons.thumb_up) {
+      reaction = '+1';
+    } else if (icon == Icons.thumb_down) {
+      reaction = '-1';
+    }
+    http
+        .post('${widget.issueUrl}/reactions',
+            headers: {
+              'Authorization': 'token $token',
+              'Accept': enableReactions
+            },
+            body: '{"content": "$reaction"}')
+        .then(respondToRequest);
+  }
+
+  respondToRequest(http.Response response) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      Navigator.pop(context);
+    } else {
+      print(
+          'Problem completing request: ${response.statusCode} ${response.body}');
+    }
   }
 }
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
+  // TODO(mattsullivan): Passing issueUrl around all the way down to FancyFab
+  // seems suboptimal. What's the right way to do this?
+  final String issueUrl;
 
   // Yes, this assumes only one review per repo. We could add a button for
   // "next review" or something if we wanted.
-  ReviewPage(this.prDiff);
+  ReviewPage(this.prDiff, this.issueUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +238,7 @@ class ReviewPage extends StatelessWidget {
               RichText(softWrap: false, text: TextSpan(children: styledCode())),
         ),
       ),
-      floatingActionButton: FancyFab(),
+      floatingActionButton: FancyFab(issueUrl),
     );
   }
 
