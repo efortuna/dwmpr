@@ -72,7 +72,7 @@ class RepoWidget extends StatelessWidget {
           return Navigator.push(context,
               MaterialPageRoute(builder: (context) => ReviewPage(result)));
         },
-        trailing: new Row(children: [
+        trailing: Row(children: [
           Icon(Icons.star),
           Text(repoInfo['stargazers_count']),
           Icon(FontAwesomeIcons.codeBranch),
@@ -100,27 +100,25 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _controller = new AnimationController(
+    _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
   }
 
   Widget build(BuildContext context) {
-    return new Column(
+    return Column(
       mainAxisSize: MainAxisSize.min,
-      children: new List<Widget>.generate(icons.length, (int index) {
-        return new ScaleTransition(
-          scale:
-              new CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-          child: new Padding(
+      children: List<Widget>.generate(icons.length, (int index) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+          child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: new FloatingActionButton(
+            child: FloatingActionButton(
               heroTag: null,
               backgroundColor: Theme.of(context).cardColor,
               mini: true,
-              child:
-                  new Icon(icons[index], color: Theme.of(context).accentColor),
+              child: Icon(icons[index], color: Theme.of(context).accentColor),
               onPressed: () {
                 if (icons[index] == Icons.check) {
                   acceptPR(context);
@@ -136,14 +134,14 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
         );
       }).toList()
         ..add(
-          new FloatingActionButton(
-            child: new AnimatedBuilder(
+          FloatingActionButton(
+            child: AnimatedBuilder(
               animation: _controller,
               builder: (BuildContext context, Widget child) {
-                return new Transform.rotate(
+                return Transform.rotate(
                   angle: _controller.value * math.pi,
-                  child: new Icon(
-                      _controller.isDismissed ? Icons.code : Icons.close),
+                  child:
+                      Icon(_controller.isDismissed ? Icons.code : Icons.close),
                 );
               },
             ),
