@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-/// GraphQL API wrapper
-
 import 'package:http/http.dart' as http;
 
 import 'package:dwmpr/github/token.dart';
+import 'package:dwmpr/github/user.dart';
+import 'package:dwmpr/github/serializers.dart';
 
 const url = 'https://api.github.com/graphql';
 const headers = {'Authorization': 'bearer $token'};
@@ -22,16 +22,24 @@ Future<String> _makeCall(String query) async {
   }
 }
 
-Future<String> userName() async {
+Future<User> user() async {
   const query = '''
     query {
       viewer {
         login
+        name
+        location
+        company
+        avatarUrl
       }
     }''';
   final result = await _makeCall(query);
+
   final parsedResult = json.decode(result);
-  return (((parsedResult as Map)['data'] as Map)['viewer'] as Map)['login'];
+  final parsedMap = (((parsedResult as Map)['data'] as Map)['viewer'] as Map);
+  final user = serializers.deserializeWith(User.serializer, parsedMap);
+
+  return user;
 }
 
 Future<String> repos() async {

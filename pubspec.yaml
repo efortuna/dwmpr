@@ -12,6 +12,10 @@ dependencies:
   http: ^0.11.3
   bidirectional_scroll_view: ^0.0.5
 
+  build_runner: ^0.8.10
+  built_value: ^5.4.0
+  built_value_generator: ^5.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

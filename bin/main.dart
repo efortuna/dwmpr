@@ -3,5 +3,5 @@
 import 'package:dwmpr/github/graphql.dart';
 
 main() async {
-  print(await repos());
+  print(await user());
 }
