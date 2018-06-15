@@ -30,6 +30,11 @@ final issueUrl = 'https://api.github.com/repos/efortuna/test_commits/issues/2';
 final reviewUrl = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
 final testRepo = 'https://api.github.com/repos/efortuna/test_commits/';
 final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
+// Github brand colors:
+// https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
+final Color githubBlue = Color(0xff4078c0);
+final Color githubGrey = Color(0xff333000);
+final Color githubPurple = Color(0xff6e5494);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -38,7 +43,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Dude, Where's My Pull Request?",
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: githubGrey,
+        accentColor: githubBlue,
       ),
       home: MyHomePage(),
     );
@@ -49,6 +55,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //backgroundColor: Color(0xff999999),
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
             title: Text("Dude, Where's My Pull Request?")),
@@ -92,7 +99,7 @@ class RepoWidget extends StatelessWidget {
         trailing: Row(children: [
           Icon(Icons.star),
           Text(repoInfo['stargazers_count']),
-          Icon(FontAwesomeIcons.codeBranch),
+          Icon(FontAwesomeIcons.codeBranch, color: githubPurple),
           Text(repoInfo['forks_count'])
         ]));
   }
@@ -115,7 +122,9 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     Icons.do_not_disturb,
     Icons.thumb_up,
     Icons.thumb_down,
-    FontAwesomeIcons.heart
+    Icons.favorite,
+    FontAwesomeIcons.question,
+    Icons.cake,
   ];
 
   @override
@@ -196,6 +205,10 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
       reaction = '+1';
     } else if (icon == Icons.thumb_down) {
       reaction = '-1';
+    } else if (icon == Icons.cake) {
+      reaction = 'hooray';
+    } else if (icon == FontAwesomeIcons.question) {
+      reaction = 'confused';
     }
     http
         .post('${widget.issueUrl}/reactions',
@@ -208,7 +221,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   }
 
   respondToRequest(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       Navigator.pop(context);
     } else {
       print(
