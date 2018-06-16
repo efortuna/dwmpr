@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:math' as math;
 import 'dart:convert';
 import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
+import 'package:dwmpr/github/token.dart';
 
 import 'package:dwmpr/github/graphql.dart' as graphql;
 import 'package:dwmpr/github/user.dart';
@@ -21,8 +22,22 @@ var repoInfo = {
   'forks_count': '5',
 };
 // Example URL.
-var diffUrl =
-    'https://patch-diff.githubusercontent.com/raw/flutter/flutter/pull/18193.diff';
+// You want to start with listing the PRs:
+// https://api.github.com/repos/efortuna/test_commits/pulls
+// We'll pass in the issue_url (for commenting) as well as the diff_url
+// (for displaying the diff)
+// The logic for getting that will be in GraphQL.
+final diffUrl = 'https://github.com/efortuna/test_commits/pull/2.diff';
+//'https://patch-diff.githubusercontent.com/raw/flutter/flutter/pull/18193.diff';
+final issueUrl = 'https://api.github.com/repos/efortuna/test_commits/issues/2';
+final reviewUrl = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
+final testRepo = 'https://api.github.com/repos/efortuna/test_commits/';
+final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
+// Github brand colors:
+// https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
+final Color githubBlue = Color(0xff4078c0);
+final Color githubGrey = Color(0xff333000);
+final Color githubPurple = Color(0xff6e5494);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -31,7 +46,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Dude, Where's My Pull Request?",
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: githubGrey,
+        accentColor: githubBlue,
       ),
       home: MyHomePage(),
     );
@@ -42,6 +58,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        //backgroundColor: Color(0xff999999),
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
             title: Text("Dude, Where's My Pull Request?")),
@@ -61,7 +78,8 @@ class MyHomePage extends StatelessWidget {
                                 fontWeight: FontWeight.bold, fontSize: 32.0)),
                         Expanded(
                           child: ListView(
-                              children: List.generate(15, (i) => RepoWidget())),
+                              children: List.generate(
+                                  15, (i) => RepoWidget(diffUrl, issueUrl))),
                         ),
                       ],
                     );
@@ -72,27 +90,37 @@ class MyHomePage extends StatelessWidget {
 }
 
 class RepoWidget extends StatelessWidget {
+  final String diffUrl;
+  final String issueUrl;
+
+  RepoWidget(this.diffUrl, this.issueUrl);
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
         title: Text(repoInfo['name']),
-        // Might want to change how we navigate to the PRs. Maybe a FAB somewhere?
         onTap: () async {
           var result =
               await http.get(diffUrl).then((response) => response.body);
-          return Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ReviewPage(result)));
+          return Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ReviewPage(result, issueUrl)));
         },
-        trailing: new Row(children: [
+        trailing: Row(children: [
           Icon(Icons.star),
           Text(repoInfo['stargazers_count']),
-          Icon(FontAwesomeIcons.codeBranch),
+          Icon(FontAwesomeIcons.codeBranch, color: githubPurple),
           Text(repoInfo['forks_count'])
         ]));
   }
 }
 
 class FancyFab extends StatefulWidget {
+  final String issueUrl;
+
+  FancyFab(this.issueUrl);
+
   @override
   State<StatefulWidget> createState() => FancyFabState();
 }
@@ -105,33 +133,33 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     Icons.do_not_disturb,
     Icons.thumb_up,
     Icons.thumb_down,
-    FontAwesomeIcons.heart
+    Icons.favorite,
+    FontAwesomeIcons.question,
+    Icons.cake,
   ];
 
   @override
   void initState() {
     super.initState();
-    _controller = new AnimationController(
+    _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
   }
 
   Widget build(BuildContext context) {
-    return new Column(
+    return Column(
       mainAxisSize: MainAxisSize.min,
-      children: new List<Widget>.generate(icons.length, (int index) {
-        return new ScaleTransition(
-          scale:
-              new CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-          child: new Padding(
+      children: List<Widget>.generate(icons.length, (int index) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+          child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: new FloatingActionButton(
+            child: FloatingActionButton(
               heroTag: null,
               backgroundColor: Theme.of(context).cardColor,
               mini: true,
-              child:
-                  new Icon(icons[index], color: Theme.of(context).accentColor),
+              child: Icon(icons[index], color: Theme.of(context).accentColor),
               onPressed: () {
                 if (icons[index] == Icons.check) {
                   acceptPR(context);
@@ -140,21 +168,20 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
                 } else {
                   addEmoji(context, icons[index]);
                 }
-                Navigator.pop(context);
               },
             ),
           ),
         );
       }).toList()
         ..add(
-          new FloatingActionButton(
-            child: new AnimatedBuilder(
+          FloatingActionButton(
+            child: AnimatedBuilder(
               animation: _controller,
               builder: (BuildContext context, Widget child) {
-                return new Transform.rotate(
+                return Transform.rotate(
                   angle: _controller.value * math.pi,
-                  child: new Icon(
-                      _controller.isDismissed ? Icons.code : Icons.close),
+                  child:
+                      Icon(_controller.isDismissed ? Icons.code : Icons.close),
                 );
               },
             ),
@@ -171,26 +198,58 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   }
 
   acceptPR(BuildContext context) {
-    // TODO(efortuna): Implement.
-    var url = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
-    http.put('$url/merge');
+    http.put('$reviewUrl/merge',
+        headers: {'Authorization': 'token $token'}).then(respondToRequest);
   }
 
   closePR(BuildContext context) {
-    // TODO(efortuna): Implement.
+    http
+        .patch(reviewUrl,
+            headers: {'Authorization': 'token $token'},
+            body: '{"state": "closed"}')
+        .then(respondToRequest);
   }
 
   void addEmoji(BuildContext context, IconData icon) {
-    // TODO(efortuna): Implement.
+    String reaction = 'heart';
+    if (icon == Icons.thumb_up) {
+      reaction = '+1';
+    } else if (icon == Icons.thumb_down) {
+      reaction = '-1';
+    } else if (icon == Icons.cake) {
+      reaction = 'hooray';
+    } else if (icon == FontAwesomeIcons.question) {
+      reaction = 'confused';
+    }
+    http
+        .post('${widget.issueUrl}/reactions',
+            headers: {
+              'Authorization': 'token $token',
+              'Accept': enableReactions
+            },
+            body: '{"content": "$reaction"}')
+        .then(respondToRequest);
+  }
+
+  respondToRequest(http.Response response) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Navigator.pop(context);
+    } else {
+      print(
+          'Problem completing request: ${response.statusCode} ${response.body}');
+    }
   }
 }
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
+  // TODO(mattsullivan): Passing issueUrl around all the way down to FancyFab
+  // seems suboptimal. What's the right way to do this?
+  final String issueUrl;
 
   // Yes, this assumes only one review per repo. We could add a button for
   // "next review" or something if we wanted.
-  ReviewPage(this.prDiff);
+  ReviewPage(this.prDiff, this.issueUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +262,7 @@ class ReviewPage extends StatelessWidget {
               RichText(softWrap: false, text: TextSpan(children: styledCode())),
         ),
       ),
-      floatingActionButton: FancyFab(),
+      floatingActionButton: FancyFab(issueUrl),
     );
   }
 
