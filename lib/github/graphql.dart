@@ -10,18 +10,18 @@ import 'package:dwmpr/github/serializers.dart';
 const url = 'https://api.github.com/graphql';
 const headers = {'Authorization': 'bearer $token'};
 
+/// Sends a GraphQL query to Github and returns raw response
 Future<String> _makeCall(String query) async {
-  // GraphQL doesn't like returns
-  final gqlQuery = '{"query": "$query"}'.replaceAll(new RegExp(r'\n'), '');
-  print(gqlQuery);
+  // GraphQL doesn't like returns; strip them out
+  final gqlQuery = '{"query": "$query"}'.replaceAll(RegExp(r'\n'), '');
   final response = await http.post(url, headers: headers, body: gqlQuery);
   if (response.statusCode == 200)
     return response.body;
-  else {
+  else
     throw Exception('Error: ${response.statusCode}');
-  }
 }
 
+/// Fetches user data from Github
 Future<User> user() async {
   const query = '''
     query {
@@ -34,14 +34,13 @@ Future<User> user() async {
       }
     }''';
   final result = await _makeCall(query);
-
   final parsedResult = json.decode(result);
-  final parsedMap = (((parsedResult as Map)['data'] as Map)['viewer'] as Map);
-  final user = serializers.deserializeWith(User.serializer, parsedMap);
-
+  final user = serializers.deserializeWith(
+      User.serializer, parsedResult['data']['viewer']);
   return user;
 }
 
+/// Fetches user repo data from Github
 Future<String> repos() async {
   const query = '''
     query {

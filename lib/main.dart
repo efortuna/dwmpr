@@ -5,6 +5,9 @@ import 'dart:math' as math;
 import 'dart:convert';
 import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
 
+import 'package:dwmpr/github/graphql.dart' as graphql;
+import 'package:dwmpr/github/user.dart';
+
 void main() => runApp(MyApp());
 
 // Bunch o'hard-coded stuff that will get updated from the response of the JSON/GraphQL API.
@@ -43,20 +46,28 @@ class MyHomePage extends StatelessWidget {
             leading: Icon(FontAwesomeIcons.github),
             title: Text("Dude, Where's My Pull Request?")),
         body: Center(
-          child: Column(
-            children: <Widget>[
-              CircleAvatar(
-                  backgroundImage: NetworkImage(profilePic), radius: 50.0),
-              Text(username,
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0)),
-              Expanded(
-                child:
-                    ListView(children: List.generate(15, (i) => RepoWidget())),
-              ),
-            ],
-          ),
-        ));
+            child: FutureBuilder(
+                future: graphql.user(),
+                builder: (context, AsyncSnapshot<User> snapshot) {
+                  var user = snapshot.data;
+                  if (snapshot.connectionState == ConnectionState.done)
+                    return Column(
+                      children: <Widget>[
+                        CircleAvatar(
+                            backgroundImage: NetworkImage(user.avatarUrl),
+                            radius: 50.0),
+                        Text(user.login,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 32.0)),
+                        Expanded(
+                          child: ListView(
+                              children: List.generate(15, (i) => RepoWidget())),
+                        ),
+                      ],
+                    );
+                  else
+                    return CircularProgressIndicator();
+                })));
   }
 }
 
