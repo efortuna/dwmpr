@@ -14,8 +14,6 @@ void main() => runApp(MyApp());
 // Bunch o'hard-coded stuff that will get updated from the response of the JSON/GraphQL API.
 // General info about a repo (example): https://api.github.com/repos/efortuna/memechat
 // PRs (example): https://api.github.com/repos/flutter/flutter/pulls
-var profilePic = 'https://avatars0.githubusercontent.com/u/2112792?v=4';
-var username = 'efortuna';
 var repoInfo = {
   'name': 'A Repository',
   'stargazers_count': '3',
