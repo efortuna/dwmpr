@@ -3,5 +3,6 @@
 import 'package:dwmpr/github/graphql.dart';
 
 main() async {
-  print(await user());
+  openPullRequestReviews('hixie').then((prs) => prs.forEach(print));
+  // test();
 }

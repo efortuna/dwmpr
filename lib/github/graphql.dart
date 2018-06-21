@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dwmpr/github/parsers.dart';
+import 'package:dwmpr/github/pullrequest.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:dwmpr/github/token.dart';
@@ -9,17 +11,6 @@ import 'package:dwmpr/github/serializers.dart';
 
 const url = 'https://api.github.com/graphql';
 const headers = {'Authorization': 'bearer $token'};
-
-/// Sends a GraphQL query to Github and returns raw response
-Future<String> _makeCall(String query) async {
-  // GraphQL doesn't like returns; strip them out
-  final gqlQuery = '{"query": "$query"}'.replaceAll(RegExp(r'\n'), '');
-  final response = await http.post(url, headers: headers, body: gqlQuery);
-  if (response.statusCode == 200)
-    return response.body;
-  else
-    throw Exception('Error: ${response.statusCode}');
-}
 
 /// Fetches user data from Github
 Future<User> user() async {
@@ -40,28 +31,50 @@ Future<User> user() async {
   return user;
 }
 
-/// Fetches user repo data from Github
-Future<String> repos() async {
-  const query = '''
-    query {
-      viewer {
-        name
-        repositories(last: 5) {
-          nodes {
-            name
-            labels(first:5) {
-              edges {
-                node {
-                  name
+/// Fetches all PR review requests for the logge in user
+Future<Iterable<PullRequest>> openPullRequestReviews(String login) async {
+  final query = '''
+    query GetOpenReviewRequests {
+      search(query: "type:pr state:open review-requested:$login", type: ISSUE, first: 100) {
+        issueCount
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        edges {
+          node {
+            ... on PullRequest {
+              repository {
+                name
+                url
+                forkCount
+                stargazers(first: 1) {
+                  totalCount
                 }
-              }          
+              }
+              title
+              number
+              url
             }
           }
         }
       }
-    }
-''';
+    }''';
   final result = await _makeCall(query);
-  final parsedResult = json.decode(result);
-  return result;
+  print(result);
+  return parseopenPullRequestReviews(result);
 }
+
+/// Sends a GraphQL query to Github and returns raw response
+Future<String> _makeCall(String query) async {
+  final gqlQuery = json.encode({'query': _removeSpuriousSpacing(query)});
+  final response = await http.post(url, headers: headers, body: gqlQuery);
+  if (response.statusCode == 200)
+    return response.body;
+  else
+    throw Exception('Error: ${response.statusCode}');
+}
+
+/// Replaces multiple spaces with a single space
+String _removeSpuriousSpacing(String str) =>
+    str.replaceAll(RegExp(r'\s+'), ' ');

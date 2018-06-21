@@ -1,3 +1,5 @@
+import 'package:dwmpr/github/graphql.dart';
+import 'package:dwmpr/github/pullrequest.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -59,27 +61,47 @@ class MyHomePage extends StatelessWidget {
         //backgroundColor: Color(0xff999999),
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
-            title: Text("Dude, Where's My Pull Request?")),
+            title: Text('Dude, Where\'s My Pull Request?')),
         body: Center(
             child: FutureBuilder(
                 future: graphql.user(),
                 builder: (context, AsyncSnapshot<User> snapshot) {
                   var user = snapshot.data;
                   if (snapshot.connectionState == ConnectionState.done)
-                    return Column(
-                      children: <Widget>[
-                        CircleAvatar(
-                            backgroundImage: NetworkImage(user.avatarUrl),
-                            radius: 50.0),
-                        Text(user.login,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 32.0)),
-                        Expanded(
-                          child: ListView(
-                              children: List.generate(
-                                  15, (i) => RepoWidget(diffUrl, issueUrl))),
-                        ),
-                      ],
+                    return GitHubUser(
+                      user: user,
+                      child: Column(
+                        children: <Widget>[
+                          CircleAvatar(
+                              backgroundImage: NetworkImage(user.avatarUrl),
+                              radius: 50.0),
+                          Text(user.login,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 32.0)),
+                          Expanded(
+                            child: FutureBuilder(
+                                future: openPullRequestReviews(user.login),
+                                builder: (context,
+                                    AsyncSnapshot<Iterable<PullRequest>>
+                                        snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    if (snapshot.data.length == 0)
+                                      return Center(
+                                          child: Text('No PR Reviews for You'));
+                                    return ListView(
+                                      children: snapshot.data
+                                          .map((pr) => RepoWidget(pr))
+                                          .toList(),
+                                    );
+                                  } else {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  }
+                                }),
+                          ),
+                        ],
+                      ),
                     );
                   else
                     return CircularProgressIndicator();
@@ -88,29 +110,42 @@ class MyHomePage extends StatelessWidget {
 }
 
 class RepoWidget extends StatelessWidget {
-  final String diffUrl;
-  final String issueUrl;
+  final PullRequest pullRequest;
 
-  RepoWidget(this.diffUrl, this.issueUrl);
+  RepoWidget(this.pullRequest);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        title: Text(repoInfo['name']),
-        onTap: () async {
-          var result =
-              await http.get(diffUrl).then((response) => response.body);
-          return Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ReviewPage(result, issueUrl)));
-        },
-        trailing: Row(children: [
-          Icon(Icons.star),
-          Text(repoInfo['stargazers_count']),
-          Icon(FontAwesomeIcons.codeBranch, color: githubPurple),
-          Text(repoInfo['forks_count'])
-        ]));
+      title: Text(pullRequest.title),
+      onTap: () async {
+        var result = await http
+            .get(pullRequest.diffUrl)
+            .then((response) => response.body);
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ReviewPage(result, pullRequest.url)));
+      },
+      trailing: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(Icons.star),
+              Text(pullRequest.repo.starCount.toString()),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(FontAwesomeIcons.codeBranch, color: githubPurple),
+              Text(pullRequest.repo.forkCount.toString()),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -279,4 +314,23 @@ class ReviewPage extends StatelessWidget {
     }
     return lines;
   }
+}
+
+class GitHubUser extends InheritedWidget {
+  const GitHubUser({
+    Key key,
+    @required this.user,
+    @required Widget child,
+  })  : assert(user != null),
+        assert(child != null),
+        super(key: key, child: child);
+
+  final User user;
+
+  static GitHubUser of(BuildContext context) {
+    return context.inheritFromWidgetOfExactType(GitHubUser);
+  }
+
+  @override
+  bool updateShouldNotify(GitHubUser old) => user != old.user;
 }
