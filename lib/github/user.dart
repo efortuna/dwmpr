@@ -1,3 +1,7 @@
+// Copyright 2018 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 /// Use to build: flutter packages pub run build_runner build
 
 import 'package:built_value/built_value.dart';
