@@ -1,5 +1,7 @@
 import 'package:dwmpr/github/graphql.dart';
 import 'package:dwmpr/github/pullrequest.dart';
+import 'package:dwmpr/state.dart';
+import 'package:dwmpr/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -29,7 +31,7 @@ var repoInfo = {
 // The logic for getting that will be in GraphQL.
 final diffUrl = 'https://github.com/efortuna/test_commits/pull/2.diff';
 //'https://patch-diff.githubusercontent.com/raw/flutter/flutter/pull/18193.diff';
-final issueUrl = 'https://api.github.com/repos/efortuna/test_commits/issues/2';
+// final issueUrl = 'https://api.github.com/repos/efortuna/test_commits/issues/2';
 final reviewUrl = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
 final testRepo = 'https://api.github.com/repos/efortuna/test_commits/';
 final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
@@ -82,7 +84,9 @@ class Body extends StatelessWidget {
         ),
         Expanded(
           child: FutureBuilder(
-              future: openPullRequestReviews(user.login),
+              // Hardcoding user for testing purposes
+              // future: openPullRequestReviews(user.login),
+              future: openPullRequestReviews('hixie'),
               builder: _fetchPullRequests(child: PullRequestList())),
         ),
       ],
@@ -111,31 +115,28 @@ class UserBanner extends StatelessWidget {
 class PullRequestList extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListView(
-        children: PullRequestDetails
+        children: PullRequestListDetails
             .of(context)
             .prs
-            .map((pr) => RepoWidget(pr))
+            .map((pr) => PullRequestDetails(pr: pr, child: RepoWidget()))
             .toList(),
       );
 }
 
 class RepoWidget extends StatelessWidget {
-  final PullRequest pullRequest;
-
-  RepoWidget(this.pullRequest);
+  RepoWidget();
 
   @override
   Widget build(BuildContext context) {
+    final pullRequest = PullRequestDetails.of(context);
     return ListTile(
       title: Text(pullRequest.title),
       onTap: () async {
         var result = await http
             .get(pullRequest.diffUrl)
             .then((response) => response.body);
-        return Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ReviewPage(result, pullRequest.url)));
+        return Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ReviewPage(result)));
       },
       trailing: Column(
         children: [
@@ -143,7 +144,7 @@ class RepoWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Icon(Icons.star),
-              Text(pullRequest.repo.starCount.toString()),
+              Text(prettyPrintInt(pullRequest.repo.starCount)),
             ],
           ),
           Row(
@@ -160,12 +161,8 @@ class RepoWidget extends StatelessWidget {
 }
 
 class FancyFab extends StatefulWidget {
-  final String issueUrl;
-
-  FancyFab(this.issueUrl);
-
   @override
-  State<StatefulWidget> createState() => FancyFabState();
+  createState() => FancyFabState();
 }
 
 class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
@@ -254,6 +251,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   }
 
   void addEmoji(BuildContext context, IconData icon) {
+    final String issueUrl = PullRequestDetails.of(context).url;
     String reaction = 'heart';
     if (icon == Icons.thumb_up) {
       reaction = '+1';
@@ -265,7 +263,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
       reaction = 'confused';
     }
     http
-        .post('${widget.issueUrl}/reactions',
+        .post('${issueUrl}/reactions',
             headers: {
               'Authorization': 'token $token',
               'Accept': enableReactions
@@ -286,13 +284,10 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
-  // TODO(mattsullivan): Passing issueUrl around all the way down to FancyFab
-  // seems suboptimal. What's the right way to do this?
-  final String issueUrl;
 
   // Yes, this assumes only one review per repo. We could add a button for
   // "next review" or something if we wanted.
-  ReviewPage(this.prDiff, this.issueUrl);
+  ReviewPage(this.prDiff);
 
   @override
   Widget build(BuildContext context) {
@@ -305,7 +300,7 @@ class ReviewPage extends StatelessWidget {
               RichText(softWrap: false, text: TextSpan(children: styledCode())),
         ),
       ),
-      floatingActionButton: FancyFab(issueUrl),
+      floatingActionButton: FancyFab(),
     );
   }
 
@@ -326,42 +321,6 @@ class ReviewPage extends StatelessWidget {
   }
 }
 
-class UserDetails extends InheritedWidget {
-  const UserDetails({
-    Key key,
-    @required this.user,
-    @required Widget child,
-  })  : assert(user != null),
-        assert(child != null),
-        super(key: key, child: child);
-
-  final User user;
-
-  static UserDetails of(BuildContext context) =>
-      context.inheritFromWidgetOfExactType(UserDetails);
-
-  @override
-  bool updateShouldNotify(UserDetails old) => user != old.user;
-}
-
-class PullRequestDetails extends InheritedWidget {
-  const PullRequestDetails({
-    Key key,
-    @required this.prs,
-    @required Widget child,
-  })  : assert(user != null),
-        assert(child != null),
-        super(key: key, child: child);
-
-  final List<PullRequest> prs;
-
-  static PullRequestDetails of(BuildContext context) =>
-      context.inheritFromWidgetOfExactType(PullRequestDetails);
-
-  @override
-  bool updateShouldNotify(PullRequestDetails old) => user != old.prs;
-}
-
 /// Handles fetching and caching user data for a FutureBuilder
 Function(BuildContext, AsyncSnapshot<User>) _fetchUser({Widget child}) {
   return (context, snapshot) {
@@ -377,11 +336,9 @@ Function(BuildContext, AsyncSnapshot<List<PullRequest>>) _fetchPullRequests(
     {Widget child}) {
   return (context, snapshot) {
     if (snapshot.connectionState == ConnectionState.done) {
-      return snapshot.data.length == 0
-          ? PullRequestDetails(
-              prs: snapshot.data,
-              child: Center(child: Text('No PR Reviews for You')))
-          : child;
+      return snapshot.data.length != 0
+          ? PullRequestListDetails(prs: snapshot.data, child: child)
+          : Center(child: Text('No PR reviews for you'));
     } else {
       return Center(child: CircularProgressIndicator());
     }
