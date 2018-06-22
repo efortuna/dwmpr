@@ -365,9 +365,8 @@ class PullRequestDetails extends InheritedWidget {
 /// Handles fetching and caching user data for a FutureBuilder
 Function(BuildContext, AsyncSnapshot<User>) _fetchUser({Widget child}) {
   return (context, snapshot) {
-    var user = snapshot.data;
     if (snapshot.connectionState == ConnectionState.done)
-      return UserDetails(user: user, child: child);
+      return UserDetails(user: snapshot.data, child: child);
     else
       return CircularProgressIndicator();
   };

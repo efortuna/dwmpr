@@ -64,6 +64,8 @@ Future<List<PullRequest>> openPullRequestReviews(String login) async {
   return parseopenPullRequestReviews(result);
 }
 
+/// Fetches the
+
 /// Sends a GraphQL query to Github and returns raw response
 Future<String> _makeCall(String query) async {
   final gqlQuery = json.encode({'query': _removeSpuriousSpacing(query)});
