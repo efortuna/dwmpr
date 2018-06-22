@@ -32,7 +32,7 @@ Future<User> user() async {
 }
 
 /// Fetches all PR review requests for the logge in user
-Future<Iterable<PullRequest>> openPullRequestReviews(String login) async {
+Future<List<PullRequest>> openPullRequestReviews(String login) async {
   final query = '''
     query GetOpenReviewRequests {
       search(query: "type:pr state:open review-requested:$login", type: ISSUE, first: 100) {
@@ -61,7 +61,6 @@ Future<Iterable<PullRequest>> openPullRequestReviews(String login) async {
       }
     }''';
   final result = await _makeCall(query);
-  print(result);
   return parseopenPullRequestReviews(result);
 }
 

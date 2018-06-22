@@ -58,55 +58,65 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        //backgroundColor: Color(0xff999999),
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
             title: Text('Dude, Where\'s My Pull Request?')),
         body: Center(
             child: FutureBuilder(
-                future: graphql.user(),
-                builder: (context, AsyncSnapshot<User> snapshot) {
-                  var user = snapshot.data;
-                  if (snapshot.connectionState == ConnectionState.done)
-                    return GitHubUser(
-                      user: user,
-                      child: Column(
-                        children: <Widget>[
-                          CircleAvatar(
-                              backgroundImage: NetworkImage(user.avatarUrl),
-                              radius: 50.0),
-                          Text(user.login,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 32.0)),
-                          Expanded(
-                            child: FutureBuilder(
-                                future: openPullRequestReviews(user.login),
-                                builder: (context,
-                                    AsyncSnapshot<Iterable<PullRequest>>
-                                        snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    if (snapshot.data.length == 0)
-                                      return Center(
-                                          child: Text('No PR Reviews for You'));
-                                    return ListView(
-                                      children: snapshot.data
-                                          .map((pr) => RepoWidget(pr))
-                                          .toList(),
-                                    );
-                                  } else {
-                                    return Center(
-                                        child: CircularProgressIndicator());
-                                  }
-                                }),
-                          ),
-                        ],
-                      ),
-                    );
-                  else
-                    return CircularProgressIndicator();
-                })));
+          future: graphql.user(),
+          builder: _fetchUser(child: Body()),
+        )));
   }
+}
+
+/// Displays the app's main body, and is dependent on the UserDetails inherited widget
+class Body extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final user = UserDetails.of(context).user;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: UserBanner(user),
+        ),
+        Expanded(
+          child: FutureBuilder(
+              future: openPullRequestReviews(user.login),
+              builder: _fetchPullRequests(child: PullRequestList())),
+        ),
+      ],
+    );
+  }
+}
+
+/// Displays the user's login and avatar
+class UserBanner extends StatelessWidget {
+  final User user;
+  UserBanner(this.user);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      CircleAvatar(backgroundImage: NetworkImage(user.avatarUrl), radius: 25.0),
+      Text(
+        user.login,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
+      ),
+    ]);
+  }
+}
+
+/// Displays a list of pull requests, from the PullRequestDetails inherited widget
+class PullRequestList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => ListView(
+        children: PullRequestDetails
+            .of(context)
+            .prs
+            .map((pr) => RepoWidget(pr))
+            .toList(),
+      );
 }
 
 class RepoWidget extends StatelessWidget {
@@ -316,8 +326,8 @@ class ReviewPage extends StatelessWidget {
   }
 }
 
-class GitHubUser extends InheritedWidget {
-  const GitHubUser({
+class UserDetails extends InheritedWidget {
+  const UserDetails({
     Key key,
     @required this.user,
     @required Widget child,
@@ -327,10 +337,54 @@ class GitHubUser extends InheritedWidget {
 
   final User user;
 
-  static GitHubUser of(BuildContext context) {
-    return context.inheritFromWidgetOfExactType(GitHubUser);
-  }
+  static UserDetails of(BuildContext context) =>
+      context.inheritFromWidgetOfExactType(UserDetails);
 
   @override
-  bool updateShouldNotify(GitHubUser old) => user != old.user;
+  bool updateShouldNotify(UserDetails old) => user != old.user;
+}
+
+class PullRequestDetails extends InheritedWidget {
+  const PullRequestDetails({
+    Key key,
+    @required this.prs,
+    @required Widget child,
+  })  : assert(user != null),
+        assert(child != null),
+        super(key: key, child: child);
+
+  final List<PullRequest> prs;
+
+  static PullRequestDetails of(BuildContext context) =>
+      context.inheritFromWidgetOfExactType(PullRequestDetails);
+
+  @override
+  bool updateShouldNotify(PullRequestDetails old) => user != old.prs;
+}
+
+/// Handles fetching and caching user data for a FutureBuilder
+Function(BuildContext, AsyncSnapshot<User>) _fetchUser({Widget child}) {
+  return (context, snapshot) {
+    var user = snapshot.data;
+    if (snapshot.connectionState == ConnectionState.done)
+      return UserDetails(user: user, child: child);
+    else
+      return CircularProgressIndicator();
+  };
+}
+
+/// Handles fetching and caching pull request data for a FutureBuilder
+Function(BuildContext, AsyncSnapshot<List<PullRequest>>) _fetchPullRequests(
+    {Widget child}) {
+  return (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+      return snapshot.data.length == 0
+          ? PullRequestDetails(
+              prs: snapshot.data,
+              child: Center(child: Text('No PR Reviews for You')))
+          : child;
+    } else {
+      return Center(child: CircularProgressIndicator());
+    }
+  };
 }

@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:dwmpr/github/pullrequest.dart';
 import 'package:dwmpr/github/repository.dart';
 
-Iterable<PullRequest> parseopenPullRequestReviews(String resBody) {
+List<PullRequest> parseopenPullRequestReviews(String resBody) {
   final jsonRes = json.decode(resBody);
   return (jsonRes['data']['search']['edges'] as List).map((edge) {
     final node = edge['node'];
@@ -25,5 +25,5 @@ Iterable<PullRequest> parseopenPullRequestReviews(String resBody) {
     final pr = PullRequest(id: prId, title: prTitle, url: prUrl, repo: repo);
 
     return pr;
-  });
+  }).toList();
 }
