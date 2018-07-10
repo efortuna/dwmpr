@@ -20,24 +20,13 @@ import 'package:dwmpr/github/user.dart';
 // Bunch o'hard-coded stuff that will get updated from the response of the JSON/GraphQL API.
 // General info about a repo (example): https://api.github.com/repos/efortuna/memechat
 // PRs (example): https://api.github.com/repos/flutter/flutter/pulls
-/*
-var repoInfo = {
-  'name': 'A Repository',
-  'stargazers_count': '3',
-  'forks_count': '5',
-};
-*/
+
 // Example URL.
 // You want to start with listing the PRs:
 // https://api.github.com/repos/efortuna/test_commits/pulls
 // We'll pass in the issue_url (for commenting) as well as the diff_url
 // (for displaying the diff)
 // The logic for getting that will be in GraphQL.
-// final diffUrl = 'https://github.com/efortuna/test_commits/pull/2.diff';
-//'https://patch-diff.githubusercontent.com/raw/flutter/flutter/pull/18193.diff';
-// final issueUrl = 'https://api.github.com/repos/efortuna/test_commits/issues/2';
-// final reviewUrl = 'https://api.github.com/repos/efortuna/test_commits/pulls/1';
-// final testRepo = 'https://api.github.com/repos/efortuna/test_commits/';
 final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
 
 // Github brand colors
@@ -69,7 +58,7 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
-            title: Text('Dude, Where\'s My Pull Request?')),
+            title: Text("Dude, Where's My Pull Request?")),
         body: Center(
             child: FutureBuilder(
           future: graphql.user(),

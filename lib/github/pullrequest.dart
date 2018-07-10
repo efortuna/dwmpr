@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:dwmpr/github/repository.dart';
-import 'package:meta/meta.dart';
 
 class PullRequest {
   final Repository repo;
@@ -12,11 +11,7 @@ class PullRequest {
   final String title;
   final String diffUrl;
 
-  PullRequest(
-      {@required this.id,
-      @required this.title,
-      @required this.url,
-      @required this.repo})
+  PullRequest(this.id, this.title, this.url, this.repo)
       : diffUrl = url + '.diff';
 
   String toString() => '$title, $id, $url, $repo, $diffUrl';

@@ -36,7 +36,7 @@ Future<User> user() async {
   return user;
 }
 
-/// Fetches all PR review requests for the logge in user
+/// Fetches all PR review requests for the logged in user
 Future<List<PullRequest>> openPullRequestReviews(String login) async {
   final query = '''
     query GetOpenReviewRequests {
@@ -66,7 +66,7 @@ Future<List<PullRequest>> openPullRequestReviews(String login) async {
       }
     }''';
   final result = await _makeCall(query);
-  return parseopenPullRequestReviews(result);
+  return parseOpenPullRequestReviews(result);
 }
 
 /// Sends a GraphQL query to Github and returns raw response
