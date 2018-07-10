@@ -52,7 +52,6 @@ Future<List<PullRequest>> openPullRequestReviews(String login) async {
               repository {
                 name
                 url
-                forkCount
                 stargazers(first: 1) {
                   totalCount
                 }

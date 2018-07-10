@@ -62,7 +62,7 @@ class MyHomePage extends StatelessWidget {
         body: Center(
             child: FutureBuilder(
           future: graphql.user(),
-          builder: _fetchUser(child: Body()),
+          builder: _fetchUser(Body()),
         )));
   }
 }
@@ -83,7 +83,7 @@ class Body extends StatelessWidget {
               // Hardcoding user for testing purposes
               // future: openPullRequestReviews(user.login),
               future: openPullRequestReviews('hixie'),
-              builder: _fetchPullRequests(child: PullRequestList())),
+              builder: _fetchPullRequests(PullRequestList())),
         ),
       ],
     );
@@ -97,8 +97,8 @@ class UserBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      CircleAvatar(backgroundImage: NetworkImage(user.avatarUrl), radius: 25.0),
+    return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      CircleAvatar(backgroundImage: NetworkImage(user.avatarUrl), radius: 50.0),
       Text(
         user.login,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
@@ -126,7 +126,8 @@ class RepoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final pullRequest = PullRequestDetails.of(context);
     return ListTile(
-      title: Text(pullRequest.title),
+      title: Text(pullRequest.repo.name),
+      subtitle: Text(pullRequest.title),
       onTap: () async {
         var result = await http
             .get(pullRequest.diffUrl)
@@ -134,24 +135,12 @@ class RepoWidget extends StatelessWidget {
         return Navigator.push(context,
             MaterialPageRoute(builder: (context) => ReviewPage(result)));
       },
-      trailing: Column(
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
+      trailing: Row(
             children: <Widget>[
-              Icon(Icons.star),
+              Icon(Icons.star, color: githubPurple),
               Text(prettyPrintInt(pullRequest.repo.starCount)),
             ],
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(FontAwesomeIcons.codeBranch, color: githubPurple),
-              Text(pullRequest.repo.forkCount.toString()),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
@@ -320,7 +309,7 @@ class ReviewPage extends StatelessWidget {
 }
 
 /// Handles fetching and caching user data for a FutureBuilder
-Function(BuildContext, AsyncSnapshot<User>) _fetchUser({Widget child}) {
+Function(BuildContext, AsyncSnapshot<User>) _fetchUser(Widget child) {
   return (context, snapshot) {
     if (snapshot.connectionState == ConnectionState.done)
       return UserDetails(user: snapshot.data, child: child);
@@ -331,7 +320,7 @@ Function(BuildContext, AsyncSnapshot<User>) _fetchUser({Widget child}) {
 
 /// Handles fetching and caching pull request data for a FutureBuilder
 Function(BuildContext, AsyncSnapshot<List<PullRequest>>) _fetchPullRequests(
-    {Widget child}) {
+    Widget child) {
   return (context, snapshot) {
     if (snapshot.connectionState == ConnectionState.done) {
       return snapshot.data.length != 0

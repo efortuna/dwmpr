@@ -15,9 +15,8 @@ List<PullRequest> parseOpenPullRequestReviews(String resBody) {
     final node = edge['node'];
     final repoName = node['repository']['name'];
     final repoUrl = node['repository']['url'];
-    final repoForkCount = node['repository']['forkCount'];
     final repoStarCount = node['repository']['stargazers']['totalCount'];
-    final repo = Repository(repoName, repoUrl, repoForkCount, repoStarCount);
+    final repo = Repository(repoName, repoUrl, repoStarCount);
 
     final prId = node['number'];
     final prTitle = node['title'];

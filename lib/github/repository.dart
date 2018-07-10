@@ -5,10 +5,9 @@
 class Repository {
   final String name;
   final String url;
-  final int forkCount;
   final int starCount;
 
-  Repository(this.name, this.url, this.forkCount, this.starCount);
+  Repository(this.name, this.url, this.starCount);
 
-  String toString() => '$name, $url, $forkCount, $starCount';
+  String toString() => '$name, $url, $starCount';
 }
