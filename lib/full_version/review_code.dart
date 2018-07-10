@@ -15,8 +15,6 @@ final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
 class ReviewPage extends StatelessWidget {
   final String prDiff;
 
-  // Yes, this assumes only one review per repo. We could add a button for
-  // "next review" or something if we wanted.
   ReviewPage(this.prDiff);
 
   @override

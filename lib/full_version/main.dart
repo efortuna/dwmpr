@@ -55,7 +55,7 @@ class MyHomePage extends StatelessWidget {
 class Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final user = UserDetails.of(context).user;
+    var user = UserDetails.of(context).user;
     return Column(
       children: [
         Padding(
@@ -104,11 +104,9 @@ class PullRequestList extends StatelessWidget {
 }
 
 class RepoWidget extends StatelessWidget {
-  RepoWidget();
-
   @override
   Widget build(BuildContext context) {
-    final pullRequest = PullRequestDetails.of(context);
+    var pullRequest = PullRequestDetails.of(context);
     return ListTile(
       title: Text(pullRequest.repo.name),
       subtitle: Text(pullRequest.title),
@@ -120,11 +118,11 @@ class RepoWidget extends StatelessWidget {
             MaterialPageRoute(builder: (context) => ReviewPage(result)));
       },
       trailing: Row(
-            children: <Widget>[
-              Icon(Icons.star, color: githubPurple),
-              Text(prettyPrintInt(pullRequest.repo.starCount)),
-            ],
-          ),
+        children: <Widget>[
+          Icon(Icons.star, color: githubPurple),
+          Text(prettyPrintInt(pullRequest.repo.starCount)),
+        ],
+      ),
     );
   }
 }
@@ -140,8 +138,7 @@ _fetchUser(Widget child) {
 }
 
 /// Handles fetching and caching pull request data for a FutureBuilder
-_fetchPullRequests(
-    Widget child) {
+_fetchPullRequests(Widget child) {
   return (context, snapshot) {
     if (snapshot.connectionState == ConnectionState.done) {
       return snapshot.data.length != 0

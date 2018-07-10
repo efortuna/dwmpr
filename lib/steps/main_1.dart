@@ -6,6 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 
+import 'state.dart';
+import 'utils.dart';
+import 'github/pullrequest.dart';
+import 'github/repository.dart';
+
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
 final Color githubBlue = Color(0xff4078c0);
@@ -35,7 +40,6 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
-            title: Text("Dude, Where's My Pull Request?")),
-        body: Center());
+            title: Text("Dude, Where's My Pull Request?")));
   }
 }
