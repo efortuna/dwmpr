@@ -24,7 +24,7 @@ class ReviewPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child:
-          RichText(softWrap: false, text: TextSpan(children: styledCode())),
+              RichText(softWrap: false, text: TextSpan(children: styledCode())),
         ),
       ),
       floatingActionButton: FancyFab(reviewUrl),
@@ -80,51 +80,51 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
 
   Widget build(BuildContext context) {
     return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: List<Widget>.generate(icons.length, (int index) {
-      return ScaleTransition(
-        scale: CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FloatingActionButton(
-            heroTag: null,
-            backgroundColor: Theme.of(context).cardColor,
-            mini: true,
-            child: Icon(icons[index], color: Theme.of(context).accentColor),
+      mainAxisSize: MainAxisSize.min,
+      children: List<Widget>.generate(icons.length, (int index) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              heroTag: null,
+              backgroundColor: Theme.of(context).cardColor,
+              mini: true,
+              child: Icon(icons[index], color: Theme.of(context).accentColor),
+              onPressed: () {
+                if (icons[index] == Icons.check) {
+                  acceptPR(context);
+                } else if (icons[index] == Icons.do_not_disturb) {
+                  closePR(context);
+                } else {
+                  addEmoji(context, icons[index]);
+                }
+              },
+            ),
+          ),
+        );
+      }).toList()
+        ..add(
+          FloatingActionButton(
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (BuildContext context, Widget child) {
+                return Transform.rotate(
+                  angle: _controller.value * math.pi,
+                  child:
+                      Icon(_controller.isDismissed ? Icons.code : Icons.close),
+                );
+              },
+            ),
             onPressed: () {
-              if (icons[index] == Icons.check) {
-                acceptPR(context);
-              } else if (icons[index] == Icons.do_not_disturb) {
-                closePR(context);
+              if (_controller.isDismissed) {
+                _controller.forward();
               } else {
-                addEmoji(context, icons[index]);
+                _controller.reverse();
               }
             },
           ),
         ),
-      );
-    }).toList()
-      ..add(
-        FloatingActionButton(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (BuildContext context, Widget child) {
-              return Transform.rotate(
-                angle: _controller.value * math.pi,
-                child:
-                Icon(_controller.isDismissed ? Icons.code : Icons.close),
-              );
-            },
-          ),
-          onPressed: () {
-            if (_controller.isDismissed) {
-              _controller.forward();
-            } else {
-              _controller.reverse();
-            }
-          },
-        ),
-      ),
     );
   }
 
@@ -136,8 +136,8 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   closePR(BuildContext context) {
     http
         .patch(widget.reviewUrl,
-        headers: {'Authorization': 'token $token'},
-        body: '{"state": "closed"}')
+            headers: {'Authorization': 'token $token'},
+            body: '{"state": "closed"}')
         .then(respondToRequest);
   }
 
@@ -154,11 +154,11 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     }
     http
         .post('${widget.reviewUrl}/reactions',
-        headers: {
-          'Authorization': 'token $token',
-          'Accept': enableReactions
-        },
-        body: '{"content": "$reaction"}')
+            headers: {
+              'Authorization': 'token $token',
+              'Accept': enableReactions
+            },
+            body: '{"content": "$reaction"}')
         .then(respondToRequest);
   }
 

@@ -100,9 +100,7 @@ class PullRequestList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
-        children: prs
-            .map((pr) => RepoWidget(pr))
-            .toList(),
+        children: prs.map((pr) => RepoWidget(pr)).toList(),
       );
 }
 
@@ -119,8 +117,10 @@ class RepoWidget extends StatelessWidget {
         var result = await http
             .get(pullRequest.diffUrl)
             .then((response) => response.body);
-        return Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ReviewPage(result, pullRequest.url)));
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ReviewPage(result, pullRequest.url)));
       },
       trailing: Row(
         children: <Widget>[
@@ -139,12 +139,13 @@ Widget _buildUser(BuildContext context, AsyncSnapshot<User> snapshot) {
     return CircularProgressIndicator();
 }
 
-Widget _buildPRList(BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
-    if (snapshot.connectionState == ConnectionState.done) {
-      return snapshot.data.length != 0
-          ? PullRequestList(snapshot.data)
-          : Center(child: Text('No PR reviews for you'));
-    } else {
-      return Center(child: CircularProgressIndicator());
-    }
+Widget _buildPRList(
+    BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+  if (snapshot.connectionState == ConnectionState.done) {
+    return snapshot.data.length != 0
+        ? PullRequestList(snapshot.data)
+        : Center(child: Text('No PR reviews for you'));
+  } else {
+    return Center(child: CircularProgressIndicator());
+  }
 }
