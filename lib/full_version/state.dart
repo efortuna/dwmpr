@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dwmpr/github/pullrequest.dart';
-import 'package:dwmpr/github/user.dart';
 import 'package:flutter/widgets.dart';
+
+import 'github/pullrequest.dart';
+import 'github/user.dart';
 
 /// Inherited Widget that holds user details
 class UserDetails extends InheritedWidget {

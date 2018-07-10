@@ -5,14 +5,14 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dwmpr/github/parsers.dart';
-import 'package:dwmpr/github/pullrequest.dart';
-import 'package:dwmpr/utils.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:dwmpr/github/token.dart';
-import 'package:dwmpr/github/user.dart';
-import 'package:dwmpr/github/serializers.dart';
+import 'parsers.dart';
+import 'pullrequest.dart';
+import 'token.dart';
+import 'user.dart';
+import 'serializers.dart';
+import '../utils.dart';
 
 const url = 'https://api.github.com/graphql';
 const headers = {'Authorization': 'bearer $token'};

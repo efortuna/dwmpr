@@ -5,7 +5,8 @@ import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math' as math;
-import 'package:dwmpr/github/token.dart';
+
+import 'github/token.dart';
 
 import 'state.dart';
 

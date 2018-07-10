@@ -6,8 +6,8 @@
 
 import 'dart:convert';
 
-import 'package:dwmpr/github/pullrequest.dart';
-import 'package:dwmpr/github/repository.dart';
+import 'pullrequest.dart';
+import 'repository.dart';
 
 List<PullRequest> parseOpenPullRequestReviews(String resBody) {
   List jsonRes = json.decode(resBody)['data']['search']['edges'];
