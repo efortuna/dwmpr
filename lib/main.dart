@@ -1,4 +1,4 @@
-import 'steps/main_1.dart' as full;
+import 'full_version/main.dart' as full;
 
 void main() {
   full.main();

@@ -8,14 +8,13 @@ import 'dart:math' as math;
 
 import 'github/token.dart';
 
-import 'state.dart';
-
 final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
+  final String reviewUrl;
 
-  ReviewPage(this.prDiff);
+  ReviewPage(this.prDiff, this.reviewUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,7 @@ class ReviewPage extends StatelessWidget {
           RichText(softWrap: false, text: TextSpan(children: styledCode())),
         ),
       ),
-      floatingActionButton: FancyFab(),
+      floatingActionButton: FancyFab(reviewUrl),
     );
   }
 
@@ -50,6 +49,9 @@ class ReviewPage extends StatelessWidget {
 }
 
 class FancyFab extends StatefulWidget {
+  final String reviewUrl;
+  FancyFab(this.reviewUrl);
+
   @override
   createState() => FancyFabState();
 }
@@ -127,22 +129,19 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   }
 
   acceptPR(BuildContext context) {
-    final reviewUrl = PullRequestDetails.of(context).url;
-    http.put('$reviewUrl/merge',
+    http.put('${widget.reviewUrl}/merge',
         headers: {'Authorization': 'token $token'}).then(respondToRequest);
   }
 
   closePR(BuildContext context) {
-    final reviewUrl = PullRequestDetails.of(context).url;
     http
-        .patch(reviewUrl,
+        .patch(widget.reviewUrl,
         headers: {'Authorization': 'token $token'},
         body: '{"state": "closed"}')
         .then(respondToRequest);
   }
 
   void addEmoji(BuildContext context, IconData icon) {
-    final String issueUrl = PullRequestDetails.of(context).url;
     String reaction = 'heart';
     if (icon == Icons.thumb_up) {
       reaction = '+1';
@@ -154,7 +153,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
       reaction = 'confused';
     }
     http
-        .post('${issueUrl}/reactions',
+        .post('${widget.reviewUrl}/reactions',
         headers: {
           'Authorization': 'token $token',
           'Accept': enableReactions

@@ -8,9 +8,9 @@ import 'package:http/http.dart' as http;
 
 import 'github/graphql.dart' as graphql;
 import 'github/user.dart';
+import 'github/pullrequest.dart';
 
 import 'review_code.dart';
-import 'state.dart';
 import 'utils.dart';
 
 // Github brand colors
@@ -46,16 +46,18 @@ class MyHomePage extends StatelessWidget {
         body: Center(
             child: FutureBuilder(
           future: graphql.user(),
-          builder: _fetchUser(Body()),
+          builder: _buildUser,
         )));
   }
 }
 
 /// Displays the app's main body, and is dependent on the UserDetails inherited widget
 class Body extends StatelessWidget {
+  final User user;
+  Body(this.user);
+
   @override
   Widget build(BuildContext context) {
-    var user = UserDetails.of(context).user;
     return Column(
       children: [
         Padding(
@@ -67,7 +69,7 @@ class Body extends StatelessWidget {
               // Hardcoding user for testing purposes
               // future: openPullRequestReviews(user.login),
               future: graphql.openPullRequestReviews('hixie'),
-              builder: _fetchPullRequests(PullRequestList())),
+              builder: _buildPRList),
         ),
       ],
     );
@@ -93,20 +95,23 @@ class UserBanner extends StatelessWidget {
 
 /// Displays a list of pull requests, from the PullRequestDetails inherited widget
 class PullRequestList extends StatelessWidget {
+  final List<PullRequest> prs;
+  PullRequestList(this.prs);
+
   @override
   Widget build(BuildContext context) => ListView(
-        children: PullRequestListDetails
-            .of(context)
-            .prs
-            .map((pr) => PullRequestDetails(pr: pr, child: RepoWidget()))
+        children: prs
+            .map((pr) => RepoWidget(pr))
             .toList(),
       );
 }
 
 class RepoWidget extends StatelessWidget {
+  final PullRequest pullRequest;
+  RepoWidget(this.pullRequest);
+
   @override
   Widget build(BuildContext context) {
-    var pullRequest = PullRequestDetails.of(context);
     return ListTile(
       title: Text(pullRequest.repo.name),
       subtitle: Text(pullRequest.title),
@@ -115,7 +120,7 @@ class RepoWidget extends StatelessWidget {
             .get(pullRequest.diffUrl)
             .then((response) => response.body);
         return Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ReviewPage(result)));
+            MaterialPageRoute(builder: (context) => ReviewPage(result, pullRequest.url)));
       },
       trailing: Row(
         children: <Widget>[
@@ -127,25 +132,19 @@ class RepoWidget extends StatelessWidget {
   }
 }
 
-/// Handles fetching and caching user data for a FutureBuilder
-_fetchUser(Widget child) {
-  return (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.done)
-      return UserDetails(user: snapshot.data, child: child);
-    else
-      return CircularProgressIndicator();
-  };
+Widget _buildUser(BuildContext context, AsyncSnapshot<User> snapshot) {
+  if (snapshot.connectionState == ConnectionState.done)
+    return Body(snapshot.data);
+  else
+    return CircularProgressIndicator();
 }
 
-/// Handles fetching and caching pull request data for a FutureBuilder
-_fetchPullRequests(Widget child) {
-  return (context, snapshot) {
+Widget _buildPRList(BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
     if (snapshot.connectionState == ConnectionState.done) {
       return snapshot.data.length != 0
-          ? PullRequestListDetails(prs: snapshot.data, child: child)
+          ? PullRequestList(snapshot.data)
           : Center(child: Text('No PR reviews for you'));
     } else {
       return Center(child: CircularProgressIndicator());
     }
-  };
 }
