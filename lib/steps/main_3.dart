@@ -45,8 +45,39 @@ class MyHomePage extends StatelessWidget {
         body: FutureBuilder(
           // Hardcoding user for testing purposes
           // future: openPullRequestReviews(user.login),
-            future: graphql.openPullRequestReviews('hixie'),
-            builder: _buildPRList));
+            future: graphql.currentUser(),
+            builder: _buildUser));
+  }
+
+  Widget _buildUser(BuildContext context, AsyncSnapshot<User> snapshot) {
+    if (snapshot.connectionState == ConnectionState.done)
+      return Body(snapshot.data);
+    else
+      return CircularProgressIndicator();
+  }
+}
+
+class Body extends StatelessWidget {
+  final User user;
+  Body(this.user);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: UserBanner(user),
+        ),
+        Expanded(
+          child: FutureBuilder(
+            // Hardcoding user for testing purposes
+            // future: openPullRequestReviews(user.login),
+              future: graphql.openPullRequestReviews('hixie'),
+              builder: _buildPRList),
+        ),
+      ],
+    );
   }
 
   Widget _buildPRList(
@@ -58,6 +89,23 @@ class MyHomePage extends StatelessWidget {
     } else {
       return Center(child: CircularProgressIndicator());
     }
+  }
+}
+
+/// Displays the user's login and avatar
+class UserBanner extends StatelessWidget {
+  final User user;
+  UserBanner(this.user);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      CircleAvatar(backgroundImage: NetworkImage(user.avatarUrl), radius: 50.0),
+      Text(
+        user.login,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
+      ),
+    ]);
   }
 }
 
