@@ -11,7 +11,6 @@ import 'github/user.dart';
 import 'github/pullrequest.dart';
 
 import 'review_code.dart';
-import 'utils.dart';
 
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
@@ -49,6 +48,13 @@ class MyHomePage extends StatelessWidget {
           builder: _buildUser,
         )));
   }
+
+  Widget _buildUser(BuildContext context, AsyncSnapshot<User> snapshot) {
+    if (snapshot.connectionState == ConnectionState.done)
+      return Body(snapshot.data);
+    else
+      return CircularProgressIndicator();
+  }
 }
 
 /// Displays the app's main body, and is dependent on the UserDetails inherited widget
@@ -73,6 +79,17 @@ class Body extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildPRList(
+      BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+      return snapshot.data.length != 0
+          ? PullRequestList(snapshot.data)
+          : Center(child: Text('No PR reviews for you'));
+    } else {
+      return Center(child: CircularProgressIndicator());
+    }
   }
 }
 
@@ -122,30 +139,25 @@ class RepoWidget extends StatelessWidget {
             MaterialPageRoute(
                 builder: (context) => ReviewPage(result, pullRequest.url)));
       },
-      trailing: Row(
-        children: <Widget>[
-          Icon(Icons.star, color: githubPurple),
-          Text(prettyPrintInt(pullRequest.repo.starCount)),
-        ],
-      ),
+      trailing: StarWidget(pullRequest.repo.starCount),
     );
   }
 }
 
-Widget _buildUser(BuildContext context, AsyncSnapshot<User> snapshot) {
-  if (snapshot.connectionState == ConnectionState.done)
-    return Body(snapshot.data);
-  else
-    return CircularProgressIndicator();
-}
+class StarWidget extends StatelessWidget {
+  final int starCount;
+  StarWidget(this.starCount);
 
-Widget _buildPRList(
-    BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
-  if (snapshot.connectionState == ConnectionState.done) {
-    return snapshot.data.length != 0
-        ? PullRequestList(snapshot.data)
-        : Center(child: Text('No PR reviews for you'));
-  } else {
-    return Center(child: CircularProgressIndicator());
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Icon(Icons.star, color: githubPurple),
+        Text(_prettyPrintInt(starCount)),
+      ],
+    );
   }
+
+  String _prettyPrintInt(int num) =>
+      (num >= 1000) ? (num / 1000.0).toStringAsFixed(1) + 'k' : '$num';
 }

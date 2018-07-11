@@ -6,10 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 
-import 'state.dart';
-import 'utils.dart';
+import 'github/graphql.dart' as graphql;
+import 'github/user.dart';
 import 'github/pullrequest.dart';
-import 'github/repository.dart';
 
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
@@ -41,31 +40,64 @@ class MyHomePage extends StatelessWidget {
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
             title: Text("Dude, Where's My Pull Request?")),
-        body: Body());
+        body: FutureBuilder(
+          // Hardcoding user for testing purposes
+          // future: openPullRequestReviews(user.login),
+            future: graphql.openPullRequestReviews('hixie'),
+            builder: _buildPRList));
+  }
+
+  Widget _buildPRList(
+      BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+      return snapshot.data.length != 0
+          ? PullRequestList(snapshot.data)
+          : Center(child: Text('No PR reviews for you'));
+    } else {
+      return Center(child: CircularProgressIndicator());
+    }
   }
 }
 
-class Body extends StatelessWidget {
+/// Displays a list of pull requests, from the PullRequestDetails inherited widget
+class PullRequestList extends StatelessWidget {
+  final List<PullRequest> prs;
+  PullRequestList(this.prs);
+
   @override
-  Widget build(BuildContext context) {
-    return ListView(children: List.generate(10, (i) => RepoWidget()));
-  }
+  Widget build(BuildContext context) => ListView(
+    children: prs.map((pr) => RepoWidget(pr)).toList(),
+  );
 }
 
 class RepoWidget extends StatelessWidget {
+  final PullRequest pullRequest;
+  RepoWidget(this.pullRequest);
+
   @override
   Widget build(BuildContext context) {
-    var pullRequest =
-        PullRequest(0, 'Some PR', 'url', Repository('Some Repo', 'url', 3));
     return ListTile(
       title: Text(pullRequest.repo.name),
       subtitle: Text(pullRequest.title),
-      trailing: Row(
-        children: <Widget>[
-          Icon(Icons.star, color: githubPurple),
-          Text(prettyPrintInt(pullRequest.repo.starCount)),
-        ],
-      ),
+      trailing: StarWidget(pullRequest.repo.starCount),
+      );
+  }
+}
+
+class StarWidget extends StatelessWidget {
+  final int starCount;
+  StarWidget(this.starCount);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Icon(Icons.star, color: githubPurple),
+        Text(_prettyPrintInt(starCount)),
+      ],
     );
   }
+
+  String _prettyPrintInt(int num) =>
+      (num >= 1000) ? (num / 1000.0).toStringAsFixed(1) + 'k' : '$num';
 }

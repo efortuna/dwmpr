@@ -5,9 +5,9 @@
 import 'package:built_value/standard_json_plugin.dart';
 import 'package:built_value/serializer.dart';
 
-import 'user_3.dart';
+import 'user.dart';
 
-part 'serializers_3.g.dart';
+part 'serializers.g.dart';
 
 @SerializersFor(const [
   User,

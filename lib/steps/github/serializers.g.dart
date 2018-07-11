@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'serializers_3.dart';
+part of 'serializers.dart';
 
 // **************************************************************************
 // BuiltValueGenerator

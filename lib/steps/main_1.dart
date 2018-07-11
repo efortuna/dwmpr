@@ -6,10 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 
-import 'state.dart';
-import 'utils.dart';
+import 'github/graphql.dart' as graphql;
+import 'github/user.dart';
 import 'github/pullrequest.dart';
-import 'github/repository.dart';
 
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
@@ -42,4 +41,26 @@ class MyHomePage extends StatelessWidget {
             leading: Icon(FontAwesomeIcons.github),
             title: Text("Dude, Where's My Pull Request?")));
   }
+
+  Widget _buildPRList(
+      BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+  }
+}
+
+class StarWidget extends StatelessWidget {
+  final int starCount;
+  StarWidget(this.starCount);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Icon(Icons.star, color: githubPurple),
+        Text(_prettyPrintInt(starCount)),
+      ],
+    );
+  }
+
+  String _prettyPrintInt(int num) =>
+      (num >= 1000) ? (num / 1000.0).toStringAsFixed(1) + 'k' : '$num';
 }

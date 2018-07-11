@@ -7,7 +7,7 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'user_3.g.dart';
+part 'user.g.dart';
 
 abstract class User implements Built<User, UserBuilder> {
   static Serializer<User> get serializer => _$userSerializer;

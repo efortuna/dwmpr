@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 
-import 'state.dart';
-import 'utils.dart';
+import 'github/graphql.dart' as graphql;
+import 'github/user.dart';
 import 'github/pullrequest.dart';
-import 'github/repository.dart';
-import 'github/graphql_3.dart' as graphql;
+
+import 'review_code.dart';
 
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
@@ -42,58 +42,73 @@ class MyHomePage extends StatelessWidget {
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
             title: Text("Dude, Where's My Pull Request?")),
-        body: Body());
+        body: FutureBuilder(
+          // Hardcoding user for testing purposes
+          // future: openPullRequestReviews(user.login),
+            future: graphql.openPullRequestReviews('hixie'),
+            builder: _buildPRList));
   }
-}
 
-class Body extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-        // Hardcoding user for testing purposes
-        // future: openPullRequestReviews(user.login),
-        future: graphql.openPullRequestReviews('hixie'),
-        builder: _fetchPullRequests(PullRequestList()));
-  }
-}
-
-class PullRequestList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => ListView(
-        children: PullRequestListDetails
-            .of(context)
-            .prs
-            .map((pr) => PullRequestDetails(pr: pr, child: RepoWidget()))
-            .toList(),
-      );
-}
-
-class RepoWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var pullRequest = PullRequestDetails.of(context);
-    return ListTile(
-      title: Text(pullRequest.repo.name),
-      subtitle: Text(pullRequest.title),
-      trailing: Row(
-        children: <Widget>[
-          Icon(Icons.star, color: githubPurple),
-          Text(prettyPrintInt(pullRequest.repo.starCount)),
-        ],
-      ),
-    );
-  }
-}
-
-/// Handles fetching and caching pull request data for a FutureBuilder
-_fetchPullRequests(Widget child) {
-  return (context, snapshot) {
+  Widget _buildPRList(
+      BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
     if (snapshot.connectionState == ConnectionState.done) {
       return snapshot.data.length != 0
-          ? PullRequestListDetails(prs: snapshot.data, child: child)
+          ? PullRequestList(snapshot.data)
           : Center(child: Text('No PR reviews for you'));
     } else {
       return Center(child: CircularProgressIndicator());
     }
-  };
+  }
+}
+
+/// Displays a list of pull requests, from the PullRequestDetails inherited widget
+class PullRequestList extends StatelessWidget {
+  final List<PullRequest> prs;
+  PullRequestList(this.prs);
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    children: prs.map((pr) => RepoWidget(pr)).toList(),
+  );
+}
+
+class RepoWidget extends StatelessWidget {
+  final PullRequest pullRequest;
+  RepoWidget(this.pullRequest);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(pullRequest.repo.name),
+      subtitle: Text(pullRequest.title),
+      trailing: StarWidget(pullRequest.repo.starCount),
+      onTap: () async {
+        var result = await http
+            .get(pullRequest.diffUrl)
+            .then((response) => response.body);
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ReviewPage(result, pullRequest.url)));
+      },
+    );
+  }
+}
+
+class StarWidget extends StatelessWidget {
+  final int starCount;
+  StarWidget(this.starCount);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Icon(Icons.star, color: githubPurple),
+        Text(_prettyPrintInt(starCount)),
+      ],
+    );
+  }
+
+  String _prettyPrintInt(int num) =>
+      (num >= 1000) ? (num / 1000.0).toStringAsFixed(1) + 'k' : '$num';
 }
