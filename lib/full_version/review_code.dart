@@ -8,7 +8,11 @@ import 'dart:math' as math;
 
 import 'github/token.dart';
 
-final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
+final authHeaders = {'Authorization': 'token $token'};
+final reactionHeaders = {
+  'Authorization': 'token $token',
+  'Accept': 'application/vnd.github.squirrel-girl-preview+json'
+};
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
@@ -54,6 +58,9 @@ class FancyFab extends StatefulWidget {
 
   @override
   createState() => FancyFabState();
+
+  String get mergeUrl => '$reviewUrl/merge';
+  String get reactionsUrl => '$reviewUrl/reactions';
 }
 
 class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
@@ -129,15 +136,13 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
   }
 
   acceptPR(BuildContext context) {
-    http.put('${widget.reviewUrl}/merge',
-        headers: {'Authorization': 'token $token'}).then(respondToRequest);
+    http.put(widget.mergeUrl, headers: authHeaders).then(respondToRequest);
   }
 
   closePR(BuildContext context) {
     http
         .patch(widget.reviewUrl,
-            headers: {'Authorization': 'token $token'},
-            body: '{"state": "closed"}')
+            headers: authHeaders, body: '{"state": "closed"}')
         .then(respondToRequest);
   }
 
@@ -153,12 +158,8 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
       reaction = 'confused';
     }
     http
-        .post('${widget.reviewUrl}/reactions',
-            headers: {
-              'Authorization': 'token $token',
-              'Accept': enableReactions
-            },
-            body: '{"content": "$reaction"}')
+        .post(widget.reactionsUrl,
+            headers: reactionHeaders, body: '{"content": "$reaction"}')
         .then(respondToRequest);
   }
 
@@ -166,8 +167,9 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     if (response.statusCode == 200 || response.statusCode == 201) {
       Navigator.pop(context);
     } else {
-      print(
-          'Problem completing request: ${response.statusCode} ${response.body}');
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text('Problem completing request: '
+              '${response.statusCode} ${response.body}')));
     }
   }
 }

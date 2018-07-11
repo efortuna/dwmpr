@@ -6,13 +6,15 @@ import 'package:http/http.dart' as http;
 
 import 'github/token.dart';
 
-final enableReactions = 'application/vnd.github.squirrel-girl-preview+json';
+final authHeaders = {'Authorization': 'token $token'};
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
   final String reviewUrl;
 
   ReviewPage(this.prDiff, this.reviewUrl);
+
+  String get mergeUrl => '$reviewUrl/merge';
 
   @override
   Widget build(BuildContext context) {
@@ -47,17 +49,16 @@ class ReviewPage extends StatelessWidget {
   }
 
   acceptPR(BuildContext context) {
-    http.put('$reviewUrl/merge', headers: {
-      'Authorization': 'token $token'
-    }).then((response) => respondToRequest(response, context));
+    http.put(mergeUrl, headers: authHeaders).then((response) => respondToRequest(response, context));
   }
 
   respondToRequest(http.Response response, BuildContext context) {
     if (response.statusCode == 200 || response.statusCode == 201) {
       Navigator.pop(context);
     } else {
-      print(
-          'Problem completing request: ${response.statusCode} ${response.body}');
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text('Problem completing request: '
+              '${response.statusCode} ${response.body}')));
     }
   }
 }
