@@ -44,7 +44,7 @@ class MyHomePage extends StatelessWidget {
             title: Text("Dude, Where's My Pull Request?")),
         body: Center(
             child: FutureBuilder(
-          future: graphql.user(),
+          future: graphql.currentUser(),
           builder: _buildUser,
         )));
   }
