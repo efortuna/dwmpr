@@ -16,16 +16,17 @@ void main() {
       {"user":
         {
           "login": "mjohnsullivan",
-          "name":"Matt Sullivan",
+          "name":"Matt",
           "avatarUrl":"https://avatars3.githubusercontent.com/u/102488?v=4"
         }
       }
     }''';
     final parsedUser = parseUser(responseBody);
-    final expectedUser = User((u) => u
-      ..name = 'Matt Sullivan'
-      ..login = 'mjohnsullivan'
-      ..avatarUrl = 'https://avatars3.githubusercontent.com/u/102488?v=4');
+    final expectedUser = User(
+      'mjohnsullivan',
+      'Matt',
+      'https://avatars3.githubusercontent.com/u/102488?v=4',
+    );
 
     expect(parsedUser, expectedUser);
   });
@@ -37,20 +38,17 @@ void main() {
       {"viewer":
         {
           "login":"mjohnsullivan",
-          "name":"Matt Sullivan",
-          "location":"London",
-          "company":"",
+          "name":"Matt",
           "avatarUrl":"https://avatars3.githubusercontent.com/u/102488?v=4"
         }
       }
     }''';
     final parsedUser = parseUser(responseBody);
-    final expectedUser = User((u) => u
-      ..name = 'Matt Sullivan'
-      ..login = 'mjohnsullivan'
-      ..avatarUrl = 'https://avatars3.githubusercontent.com/u/102488?v=4'
-      ..location = 'London'
-      ..company = '');
+    final expectedUser = User(
+      'mjohnsullivan',
+      'Matt',
+      'https://avatars3.githubusercontent.com/u/102488?v=4',
+    );
 
     expect(parsedUser, expectedUser);
   });

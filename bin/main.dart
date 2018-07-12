@@ -6,6 +6,6 @@ import 'package:dwmpr/full_version/github/graphql.dart';
 
 main() async {
   // openPullRequestReviews('hixie').then((prs) => prs.forEach(print));
-  //user('mjohnsullivan').then(print);
-  currentUser().then(print);
+  user('mjohnsullivan').then(print);
+  // currentUser().then(print);
 }
