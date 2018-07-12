@@ -11,30 +11,9 @@ import 'parsers.dart';
 import 'pullrequest.dart';
 import 'token.dart';
 import 'user.dart';
-import 'serializers.dart';
 
 const url = 'https://api.github.com/graphql';
 const headers = {'Authorization': 'bearer $token'};
-
-/// Fetches user data for the auth'd user
-Future<User> currentUser() async {
-  const query = '''
-    query {
-      viewer {
-        login
-        name
-        location
-        company
-        avatarUrl
-      }
-    }''';
-  final result = await _query(query);
-  final parsedResult = json.decode(result);
-  print(result);
-  final user = serializers.deserializeWith(
-      User.serializer, parsedResult['data']['viewer']);
-  return user;
-}
 
 /// Fetches the details of the specified user
 Future<User> user(String login) async {
@@ -49,7 +28,20 @@ Future<User> user(String login) async {
   ''';
 
   final result = await _query(query);
-  print(result);
+  return parseUser(result);
+}
+
+/// Fetches user data for the auth'd user
+Future<User> currentUser() async {
+  const query = '''
+    query {
+      viewer {
+        login
+        name
+        avatarUrl
+      }
+    }''';
+  final result = await _query(query);
   return parseUser(result);
 }
 

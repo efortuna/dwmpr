@@ -2,24 +2,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// Use to build: flutter packages pub run build_runner build
+class User {
+  final String login;
+  final String name;
+  final String avatarUrl;
 
-import 'package:built_value/built_value.dart';
-import 'package:built_value/serializer.dart';
+  User(this.login, this.name, this.avatarUrl);
 
-part 'user.g.dart';
+  @override
+  String toString() =>
+      'USER:\n{login: $login, name: $name, avatar: $avatarUrl}';
 
-abstract class User implements Built<User, UserBuilder> {
-  static Serializer<User> get serializer => _$userSerializer;
+  @override
+  bool operator ==(u) =>
+      u is User &&
+      u.login == login &&
+      u.name == name &&
+      u.avatarUrl == avatarUrl;
 
-  String get login;
-  String get name;
-  String get avatarUrl;
-  @nullable
-  String get location;
-  @nullable
-  String get company;
-
-  factory User([updates(UserBuilder b)]) = _$User;
-  User._();
+  @override
+  int get hashCode => login.hashCode + name.hashCode + avatarUrl.hashCode;
 }

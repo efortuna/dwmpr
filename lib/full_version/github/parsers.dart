@@ -13,12 +13,7 @@ import 'user.dart';
 User parseUser(String resBody) {
   final jsonRes = json.decode(resBody)['data'];
   final userJson = jsonRes['viewer'] ?? jsonRes['user'];
-  return User((u) => u
-    ..name = userJson['name']
-    ..login = userJson['login']
-    ..avatarUrl = userJson['avatarUrl']
-    ..company = userJson['company']
-    ..location = userJson['location']);
+  return User(userJson['login'], userJson['name'], userJson['avatarUrl']);
 }
 
 List<PullRequest> parseOpenPullRequestReviews(String resBody) {
