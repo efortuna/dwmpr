@@ -49,7 +49,9 @@ class ReviewPage extends StatelessWidget {
   }
 
   acceptPR(BuildContext context) {
-    http.put(mergeUrl, headers: authHeaders).then((response) => respondToRequest(response, context));
+    http
+        .put(mergeUrl, headers: authHeaders)
+        .then((response) => respondToRequest(response, context));
   }
 
   respondToRequest(http.Response response, BuildContext context) {

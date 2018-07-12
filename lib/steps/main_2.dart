@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
 
 import 'github/graphql.dart' as graphql;
 import 'github/user.dart';
@@ -40,22 +41,9 @@ class MyHomePage extends StatelessWidget {
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
             title: Text("Dude, Where's My Pull Request?")),
-        body: FutureBuilder(
-          // Hardcoding user for testing purposes
-          // future: openPullRequestReviews(user.login),
+        body: FetchDataWidget(
             future: graphql.openPullRequestReviews('hixie'),
-            builder: _buildPRList));
-  }
-
-  Widget _buildPRList(
-      BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
-    if (snapshot.connectionState == ConnectionState.done) {
-      return snapshot.data.length != 0
-          ? PullRequestList(snapshot.data)
-          : Center(child: Text('No PR reviews for you'));
-    } else {
-      return Center(child: CircularProgressIndicator());
-    }
+            builder: (List<PullRequest> prs) => PullRequestList(prs)));
   }
 }
 
@@ -66,8 +54,8 @@ class PullRequestList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
-    children: prs.map((pr) => RepoWidget(pr)).toList(),
-  );
+        children: prs.map((pr) => RepoWidget(pr)).toList(),
+      );
 }
 
 class RepoWidget extends StatelessWidget {
@@ -80,7 +68,30 @@ class RepoWidget extends StatelessWidget {
       title: Text(pullRequest.repo.name),
       subtitle: Text(pullRequest.title),
       trailing: StarWidget(pullRequest.repo.starCount),
-      );
+    );
+  }
+}
+
+class FetchDataWidget extends StatelessWidget {
+  Future<List<PullRequest>> future;
+  Function builder;
+
+  FetchDataWidget({@required this.future, @required builder});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: future,
+        builder:
+            (BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return snapshot.data.length != 0
+                ? builder(snapshot.data)
+                : Center(child: Text('No PR reviews today!'));
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        });
   }
 }
 

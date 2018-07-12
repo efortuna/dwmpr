@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
 
 import 'github/graphql.dart' as graphql;
 import 'github/user.dart';
@@ -37,13 +38,46 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            leading: Icon(FontAwesomeIcons.github),
-            title: Text("Dude, Where's My Pull Request?")));
+        appBar: AppBar(title: Text("Dude, Where's My Pull Request?")));
   }
 
-  Widget _buildPRList(
-      BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+  Widget displayWhenReady(Future<List<PullRequest>> futureSource,
+      widgetBuilder(List<PullRequest> data)) {
+    return FutureBuilder(
+        future: futureSource,
+        builder:
+            (BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return snapshot.data.length != 0
+                ? widgetBuilder(snapshot.data)
+                : Center(child: Text('No PR reviews today!'));
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        });
+  }
+}
+
+class FetchDataWidget extends StatelessWidget {
+  Future<List<PullRequest>> future;
+  Function builder;
+
+  FetchDataWidget({@required this.future, @required builder});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: future,
+        builder:
+            (BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return snapshot.data.length != 0
+                ? builder(snapshot.data)
+                : Center(child: Text('No PR reviews today!'));
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        });
   }
 }
 

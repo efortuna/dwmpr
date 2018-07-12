@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
 
 import 'github/graphql.dart' as graphql;
 import 'github/user.dart';
@@ -42,11 +43,9 @@ class MyHomePage extends StatelessWidget {
         appBar: AppBar(
             leading: Icon(FontAwesomeIcons.github),
             title: Text("Dude, Where's My Pull Request?")),
-        body: FutureBuilder(
-          // Hardcoding user for testing purposes
-          // future: openPullRequestReviews(user.login),
+        body: FetchDataWidget(
             future: graphql.openPullRequestReviews('hixie'),
-            builder: _buildPRList));
+            builder: (List<PullRequest> prs) => PullRequestList(prs)));
   }
 
   Widget _buildPRList(
@@ -92,6 +91,29 @@ class RepoWidget extends StatelessWidget {
                 builder: (context) => ReviewPage(result, pullRequest.url)));
       },
     );
+  }
+}
+
+class FetchDataWidget extends StatelessWidget {
+  Future<List<PullRequest>> future;
+  Function builder;
+
+  FetchDataWidget({@required this.future, @required builder});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: future,
+        builder:
+            (BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return snapshot.data.length != 0
+                ? builder(snapshot.data)
+                : Center(child: Text('No PR reviews today!'));
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        });
   }
 }
 
