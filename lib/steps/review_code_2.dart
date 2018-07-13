@@ -14,25 +14,16 @@ class ReviewPage extends StatelessWidget {
 
   ReviewPage(this.prDiff, this.reviewUrl);
 
-  String get mergeUrl => '$reviewUrl/merge';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Review Pull Request')),
-      body: BidirectionalScrollViewPlugin(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child:
-              RichText(softWrap: false, text: TextSpan(children: styledCode())),
-        ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-          child: Icon(Icons.check), onPressed: () => acceptPR(context)),
-    );
+        appBar: AppBar(title: Text('Review Pull Request')),
+        body: styledCode(),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () => acceptPR(context), child: Icon(Icons.check)));
   }
 
-  List<TextSpan> styledCode() {
+  RichText styledCode() {
     var lines = <TextSpan>[];
     for (var line in LineSplitter.split(prDiff)) {
       var color = Colors.black;
@@ -43,18 +34,13 @@ class ReviewPage extends StatelessWidget {
       }
       lines.add(TextSpan(
           text: line + '\n',
-          style: TextStyle(color: color, fontFamily: 'monospace')));
+          style: TextStyle(color: color, fontFamily: 'RobotoMono')));
     }
-    return lines;
+    return RichText(softWrap: false, text: TextSpan(children: lines));
   }
 
-  acceptPR(BuildContext context) {
-    http
-        .put(mergeUrl, headers: authHeaders)
-        .then((response) => respondToRequest(response, context));
-  }
-
-  respondToRequest(http.Response response, BuildContext context) {
+  acceptPR(BuildContext context) async {
+    http.Response response = await http.put('$reviewUrl/merge', headers: authHeaders);
     if (response.statusCode == 200 || response.statusCode == 201) {
       Navigator.pop(context);
     } else {

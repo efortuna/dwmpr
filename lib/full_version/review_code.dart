@@ -27,15 +27,14 @@ class ReviewPage extends StatelessWidget {
       body: BidirectionalScrollViewPlugin(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
-          child:
-              RichText(softWrap: false, text: TextSpan(children: styledCode())),
+          child: styledCode(),
         ),
       ),
       floatingActionButton: FancyFab(reviewUrl),
     );
   }
 
-  List<TextSpan> styledCode() {
+  RichText styledCode() {
     var lines = <TextSpan>[];
     for (var line in LineSplitter.split(prDiff)) {
       var color = Colors.black;
@@ -46,9 +45,9 @@ class ReviewPage extends StatelessWidget {
       }
       lines.add(TextSpan(
           text: line + '\n',
-          style: TextStyle(color: color, fontFamily: 'monospace')));
+          style: TextStyle(color: color, fontFamily: 'RobotoMono')));
     }
-    return lines;
+    return RichText(softWrap: false, text: TextSpan(children: lines));
   }
 }
 
