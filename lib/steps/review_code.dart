@@ -19,7 +19,7 @@ class ReviewPage extends StatelessWidget {
     return Scaffold(appBar: AppBar(title: Text('Review Pull Request')));
   }
 
-  RichText styledCode() {
+  RichText styledCode(String prDiff) {
     var lines = <TextSpan>[];
     for (var line in LineSplitter.split(prDiff)) {
       var color = Colors.black;

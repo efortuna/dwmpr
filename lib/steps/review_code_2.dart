@@ -18,12 +18,12 @@ class ReviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('Review Pull Request')),
-        body: styledCode(),
+        body: styledCode(prDiff),
         floatingActionButton: FloatingActionButton(
             onPressed: () => acceptPR(context), child: Icon(Icons.check)));
   }
 
-  RichText styledCode() {
+  RichText styledCode(String prDiff) {
     var lines = <TextSpan>[];
     for (var line in LineSplitter.split(prDiff)) {
       var color = Colors.black;
