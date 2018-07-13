@@ -32,7 +32,7 @@ class ReviewPage extends StatelessWidget {
       }
       lines.add(TextSpan(
           text: line + '\n',
-          style: TextStyle(color: color, fontFamily: 'monospace')));
+          style: TextStyle(color: color, fontFamily: 'RobotoMono')));
     }
     return lines;
   }

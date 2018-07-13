@@ -74,7 +74,7 @@ class Body extends StatelessWidget {
           child: FutureBuilder(
               // Hardcoding user for testing purposes
               // future: openPullRequestReviews(user.login),
-              future: graphql.openPullRequestReviews('hixie'),
+              future: graphql.openPullRequestReviews('efortuna'),
               builder: _buildPRList),
         ),
       ],
@@ -151,6 +151,7 @@ class StarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Icon(Icons.star, color: githubPurple),
         Text(_prettyPrintInt(starCount)),
