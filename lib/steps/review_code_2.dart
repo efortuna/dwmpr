@@ -19,16 +19,10 @@ class ReviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Review Pull Request')),
-      body: BidirectionalScrollViewPlugin(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: styledCode(),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.check), onPressed: () => acceptPR(context)),
-    );
+        appBar: AppBar(title: Text('Review Pull Request')),
+        body: styledCode(),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () => acceptPR(context), child: Icon(Icons.check)));
   }
 
   RichText styledCode() {
