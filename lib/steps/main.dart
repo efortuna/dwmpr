@@ -43,8 +43,8 @@ class MyHomePage extends StatelessWidget {
 }
 
 class FetchDataWidget extends StatelessWidget {
-  Future<List<PullRequest>> future;
-  Function builder;
+  final Future<List<PullRequest>> future;
+  final Function builder;
 
   FetchDataWidget({@required this.future, @required this.builder});
 

@@ -116,31 +116,26 @@ class PullRequestList extends StatelessWidget {
   PullRequestList(this.prs);
 
   @override
-  Widget build(BuildContext context) => ListView(
-        children: prs.map((pr) => RepoWidget(pr)).toList(),
-      );
-}
-
-class RepoWidget extends StatelessWidget {
-  final PullRequest pullRequest;
-  RepoWidget(this.pullRequest);
-
-  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(pullRequest.repo.name),
-      subtitle: Text(pullRequest.title),
-      onTap: () async {
-        var result = await http
-            .get(pullRequest.diffUrl)
-            .then((response) => response.body);
-        return Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ReviewPage(result, pullRequest.url)));
-      },
-      trailing: StarWidget(pullRequest.repo.starCount),
+    return ListView(
+      children: prs
+          .map((pullRequest) => ListTile(
+                title: Text(pullRequest.repo.name),
+                subtitle: Text(pullRequest.title),
+                onTap: () => showReview(context, pullRequest),
+                trailing: StarWidget(pullRequest.repo.starCount),
+              ))
+          .toList(),
     );
+  }
+
+  showReview(BuildContext context, PullRequest pullRequest) async {
+    var result =
+        await http.get(pullRequest.diffUrl).then((response) => response.body);
+    return Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ReviewPage(result, pullRequest.url)));
   }
 }
 
