@@ -14,8 +14,6 @@ class ReviewPage extends StatelessWidget {
 
   ReviewPage(this.prDiff, this.reviewUrl);
 
-  String get mergeUrl => '$reviewUrl/merge';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +40,7 @@ class ReviewPage extends StatelessWidget {
   }
 
   acceptPR(BuildContext context) async {
-    http.Response response = await http.put(mergeUrl, headers: authHeaders);
+    http.Response response = await http.put('$reviewUrl/merge', headers: authHeaders);
     if (response.statusCode == 200 || response.statusCode == 201) {
       Navigator.pop(context);
     } else {
