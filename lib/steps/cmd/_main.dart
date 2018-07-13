@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../full_version/github/parsers.dart';
+import '../../full_version/github/user.dart';
 import '../../full_version/github/token.dart';
 import '../../full_version/github/utils.dart';
 
