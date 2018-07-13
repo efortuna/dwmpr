@@ -10,7 +10,6 @@ import 'dart:async';
 import 'github/graphql.dart' as graphql;
 import 'github/user.dart';
 import 'github/pullrequest.dart';
-
 import 'review_code.dart';
 
 // Github brand colors
@@ -40,65 +39,44 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            leading: Icon(FontAwesomeIcons.github),
-            title: Text("Dude, Where's My Pull Request?")),
+        appBar: AppBar(title: Text("Dude, Where's My Pull Request?")),
         body: FetchDataWidget(
-            future: graphql.openPullRequestReviews('hixie'),
+            future: graphql.openPullRequestReviews('efortuna'),
             builder: (List<PullRequest> prs) => PullRequestList(prs)));
-  }
-
-  Widget _buildPRList(
-      BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
-    if (snapshot.connectionState == ConnectionState.done) {
-      return snapshot.data.length != 0
-          ? PullRequestList(snapshot.data)
-          : Center(child: Text('No PR reviews for you'));
-    } else {
-      return Center(child: CircularProgressIndicator());
-    }
   }
 }
 
-/// Displays a list of pull requests, from the PullRequestDetails inherited widget
 class PullRequestList extends StatelessWidget {
   final List<PullRequest> prs;
   PullRequestList(this.prs);
 
   @override
-  Widget build(BuildContext context) => ListView(
-    children: prs.map((pr) => RepoWidget(pr)).toList(),
-  );
-}
-
-class RepoWidget extends StatelessWidget {
-  final PullRequest pullRequest;
-  RepoWidget(this.pullRequest);
-
-  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(pullRequest.repo.name),
-      subtitle: Text(pullRequest.title),
-      trailing: StarWidget(pullRequest.repo.starCount),
-      onTap: () async {
-        var result = await http
-            .get(pullRequest.diffUrl)
-            .then((response) => response.body);
-        return Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ReviewPage(result, pullRequest.url)));
-      },
-    );
+    return ListView(
+        children: prs
+            .map((PullRequest pr) => ListTile(
+            title: Text(pr.repo.name),
+            subtitle: Text(pr.title),
+            trailing: StarWidget(pr.repo.starCount),
+            onTap: () => showReview(context, pr)))
+            .toList());
   }
 }
 
-class FetchDataWidget extends StatelessWidget {
-  Future<List<PullRequest>> future;
-  Function builder;
+showReview(BuildContext context, PullRequest pullRequest) async {
+  var result =
+  await http.get(pullRequest.diffUrl).then((response) => response.body);
+  return Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ReviewPage(result, pullRequest.url)));
+}
 
-  FetchDataWidget({@required this.future, @required builder});
+class FetchDataWidget extends StatelessWidget {
+  final Future<List<PullRequest>> future;
+  final Function builder;
+
+  FetchDataWidget({@required this.future, @required this.builder});
 
   @override
   Widget build(BuildContext context) {

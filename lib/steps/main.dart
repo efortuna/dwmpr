@@ -10,6 +10,7 @@ import 'dart:async';
 import 'github/graphql.dart' as graphql;
 import 'github/user.dart';
 import 'github/pullrequest.dart';
+import 'review_code.dart';
 
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
@@ -40,6 +41,15 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(title: Text("Dude, Where's My Pull Request?")));
   }
+}
+
+showReview(BuildContext context, PullRequest pullRequest) async {
+  var result =
+  await http.get(pullRequest.diffUrl).then((response) => response.body);
+  return Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ReviewPage(result, pullRequest.url)));
 }
 
 class FetchDataWidget extends StatelessWidget {
