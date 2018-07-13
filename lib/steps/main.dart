@@ -40,29 +40,13 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(title: Text("Dude, Where's My Pull Request?")));
   }
-
-  Widget displayWhenReady(Future<List<PullRequest>> futureSource,
-      widgetBuilder(List<PullRequest> data)) {
-    return FutureBuilder(
-        future: futureSource,
-        builder:
-            (BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return snapshot.data.length != 0
-                ? widgetBuilder(snapshot.data)
-                : Center(child: Text('No PR reviews today!'));
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        });
-  }
 }
 
 class FetchDataWidget extends StatelessWidget {
   Future<List<PullRequest>> future;
   Function builder;
 
-  FetchDataWidget({@required this.future, @required builder});
+  FetchDataWidget({@required this.future, @required this.builder});
 
   @override
   Widget build(BuildContext context) {
