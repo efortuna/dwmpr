@@ -69,7 +69,7 @@ showReview(BuildContext context, PullRequest pullRequest) async {
   return Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => ReviewPage(result, pullRequest.url)));
+          builder: (context) => ReviewPage(result, pullRequest.issueUrl)));
 }
 
 class FetchDataWidget extends StatelessWidget {

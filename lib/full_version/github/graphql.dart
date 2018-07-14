@@ -13,8 +13,9 @@ import 'token.dart';
 import 'user.dart';
 import 'utils.dart';
 
-const url = 'https://api.github.com/graphql';
-const headers = {'Authorization': 'bearer $token'};
+final url = 'https://api.github.com/graphql';
+final headers = {'Authorization': 'bearer $token'};
+final postHeaders = {'Authorization': 'token $token'};
 
 /// Fetches the details of the specified user
 Future<User> user(String login) async {
@@ -67,7 +68,7 @@ Future<List<PullRequest>> openPullRequestReviews(String login) async {
                 }
               }
               title
-              number
+              id
               url
             }
           }
@@ -76,6 +77,37 @@ Future<List<PullRequest>> openPullRequestReviews(String login) async {
     }''';
   final result = await _query(query);
   return parseOpenPullRequestReviews(result);
+}
+
+addEmoji(String id, String reaction) async {
+  var query = '''
+    mutation AddReactionToIssue {
+      addReaction(input:{subjectId:"$id", content:$reaction}) {
+        reaction {
+          content
+        }
+        subject {
+          id
+        }
+      }
+    }
+    ''';
+  await _query(query);
+}
+
+acceptPR(String reviewUrl) async {
+  var response = await http.put('$reviewUrl/merge', headers: postHeaders);
+  return response.statusCode == 200
+      ? response.body
+      : throw Exception('Error: ${response.statusCode} ${response.body}');
+}
+
+closePR(String reviewUrl) async {
+  var response = await http.patch(reviewUrl,
+      headers: postHeaders, body: '{"state": "closed"}');
+  return response.statusCode == 200
+      ? response.body
+      : throw Exception('Error: ${response.statusCode} ${response.body}');
 }
 
 /// Sends a GraphQL query to Github and returns raw response

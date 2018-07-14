@@ -6,7 +6,7 @@ import 'repository.dart';
 
 class PullRequest {
   final Repository repo;
-  final int id;
+  final String id;
   final String url;
   final String title;
   final String diffUrl;

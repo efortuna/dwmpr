@@ -135,7 +135,7 @@ class PullRequestList extends StatelessWidget {
     return Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ReviewPage(result, pullRequest.url)));
+            builder: (context) => ReviewPage(result, pullRequest.id, pullRequest.url)));
   }
 }
 
