@@ -11,7 +11,6 @@ import 'parsers.dart';
 import 'pullrequest.dart';
 import 'token.dart';
 import 'user.dart';
-import 'utils.dart';
 
 final url = 'https://api.github.com/graphql';
 final headers = {'Authorization': 'bearer $token'};
@@ -112,9 +111,11 @@ closePR(String reviewUrl) async {
 
 /// Sends a GraphQL query to Github and returns raw response
 Future<String> _query(String query) async {
-  final gqlQuery = json.encode({'query': removeSpuriousSpacing(query)});
+  final gqlQuery = json.encode({'query': _removeSpuriousSpacing(query)});
   final response = await http.post(url, headers: headers, body: gqlQuery);
   return response.statusCode == 200
       ? response.body
       : throw Exception('Error: ${response.statusCode}');
 }
+
+_removeSpuriousSpacing(String str) => str.replaceAll(RegExp(r'\s+'), ' ');

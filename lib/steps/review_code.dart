@@ -10,9 +10,10 @@ final authHeaders = {'Authorization': 'token $token'};
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
+  final String id;
   final String reviewUrl;
 
-  ReviewPage(this.prDiff, this.reviewUrl);
+  ReviewPage(this.prDiff, this.id, this.reviewUrl);
 
   @override
   Widget build(BuildContext context) {
