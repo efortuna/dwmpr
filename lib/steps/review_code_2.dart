@@ -5,25 +5,25 @@ import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
 import 'package:http/http.dart' as http;
 
 import 'github/token.dart';
-
-final authHeaders = {'Authorization': 'token $token'};
+import 'github/graphql.dart' as graphql;
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
+  final String id;
   final String reviewUrl;
 
-  ReviewPage(this.prDiff, this.reviewUrl);
+  ReviewPage(this.prDiff, this.id, this.reviewUrl);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('Review Pull Request')),
-        body: styledCode(),
+        body: BidirectionalScrollViewPlugin(child: styledCode(prDiff)),
         floatingActionButton: FloatingActionButton(
             onPressed: () => acceptPR(context), child: Icon(Icons.check)));
   }
 
-  RichText styledCode() {
+  RichText styledCode(String prDiff) {
     var lines = <TextSpan>[];
     for (var line in LineSplitter.split(prDiff)) {
       var color = Colors.black;
@@ -40,13 +40,7 @@ class ReviewPage extends StatelessWidget {
   }
 
   acceptPR(BuildContext context) async {
-    http.Response response = await http.put('$reviewUrl/merge', headers: authHeaders);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      Navigator.pop(context);
-    } else {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text('Problem completing request: '
-              '${response.statusCode} ${response.body}')));
-    }
+    await graphql.acceptPR(reviewUrl);
+    Navigator.pop(context);
   }
 }

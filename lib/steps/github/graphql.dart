@@ -11,28 +11,39 @@ import 'parsers.dart';
 import 'pullrequest.dart';
 import 'token.dart';
 import 'user.dart';
-import 'serializers.dart';
 
-const url = 'https://api.github.com/graphql';
-const headers = {'Authorization': 'bearer $token'};
+final url = 'https://api.github.com/graphql';
+final headers = {'Authorization': 'bearer $token'};
+final postHeaders = {'Authorization': 'token $token'};
 
-/// Fetches user data from Github
-Future<User> user() async {
+/// Fetches the details of the specified user
+Future<User> user(String login) async {
+  final query = '''
+    query {
+      user(login:"$login") {
+        login
+        name
+        avatarUrl
+      }
+    }
+  ''';
+
+  final result = await _query(query);
+  return parseUser(result);
+}
+
+/// Fetches user data for the auth'd user
+Future<User> currentUser() async {
   const query = '''
     query {
       viewer {
         login
         name
-        location
-        company
         avatarUrl
       }
     }''';
-  final result = await _makeCall(query);
-  final parsedResult = json.decode(result);
-  final user = serializers.deserializeWith(
-      User.serializer, parsedResult['data']['viewer']);
-  return user;
+  final result = await _query(query);
+  return parseUser(result);
 }
 
 /// Fetches all PR review requests for the logged in user
@@ -56,25 +67,55 @@ Future<List<PullRequest>> openPullRequestReviews(String login) async {
                 }
               }
               title
-              number
+              id
               url
             }
           }
         }
       }
     }''';
-  final result = await _makeCall(query);
+  final result = await _query(query);
   return parseOpenPullRequestReviews(result);
 }
 
+addEmoji(String id, String reaction) async {
+  var query = '''
+    mutation AddReactionToIssue {
+      addReaction(input:{subjectId:"$id", content:$reaction}) {
+        reaction {
+          content
+        }
+        subject {
+          id
+        }
+      }
+    }
+    ''';
+  await _query(query);
+}
+
+acceptPR(String reviewUrl) async {
+  var response = await http.put('$reviewUrl/merge', headers: postHeaders);
+  return response.statusCode == 200
+      ? response.body
+      : throw Exception('Error: ${response.statusCode} ${response.body}');
+}
+
+closePR(String reviewUrl) async {
+  var response = await http.patch(reviewUrl,
+      headers: postHeaders, body: '{"state": "closed"}');
+  return response.statusCode == 200
+      ? response.body
+      : throw Exception('Error: ${response.statusCode} ${response.body}');
+}
+
 /// Sends a GraphQL query to Github and returns raw response
-Future<String> _makeCall(String query) async {
+Future<String> _query(String query) async {
   final gqlQuery = json.encode({'query': _removeSpuriousSpacing(query)});
   final response = await http.post(url, headers: headers, body: gqlQuery);
-  if (response.statusCode == 200)
-    return response.body;
-  else
-    throw Exception('Error: ${response.statusCode}');
+  return response.statusCode == 200
+      ? response.body
+      : throw Exception('Error: ${response.statusCode}');
 }
 
 _removeSpuriousSpacing(String str) => str.replaceAll(RegExp(r'\s+'), ' ');

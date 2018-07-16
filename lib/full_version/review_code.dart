@@ -3,22 +3,16 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart' as http;
 import 'dart:math' as math;
 
-import 'github/token.dart';
-
-final authHeaders = {'Authorization': 'token $token'};
-final reactionHeaders = {
-  'Authorization': 'token $token',
-  'Accept': 'application/vnd.github.squirrel-girl-preview+json'
-};
+import 'github/graphql.dart' as graphql;
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
+  final String id;
   final String reviewUrl;
 
-  ReviewPage(this.prDiff, this.reviewUrl);
+  ReviewPage(this.prDiff, this.id, this.reviewUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +24,7 @@ class ReviewPage extends StatelessWidget {
           child: styledCode(),
         ),
       ),
-      floatingActionButton: FancyFab(reviewUrl),
+      floatingActionButton: FancyFab(id, reviewUrl),
     );
   }
 
@@ -52,14 +46,12 @@ class ReviewPage extends StatelessWidget {
 }
 
 class FancyFab extends StatefulWidget {
+  final String id;
   final String reviewUrl;
-  FancyFab(this.reviewUrl);
+  FancyFab(this.id, this.reviewUrl);
 
   @override
   createState() => FancyFabState();
-
-  String get mergeUrl => '$reviewUrl/merge';
-  String get reactionsUrl => '$reviewUrl/reactions';
 }
 
 class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
@@ -99,12 +91,13 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
               child: Icon(icons[index], color: Theme.of(context).accentColor),
               onPressed: () {
                 if (icons[index] == Icons.check) {
-                  acceptPR(context);
+                  graphql.acceptPR(widget.reviewUrl);
                 } else if (icons[index] == Icons.do_not_disturb) {
-                  closePR(context);
+                  graphql.closePR(widget.reviewUrl);
                 } else {
                   addEmoji(context, icons[index]);
                 }
+                Navigator.pop(context);
               },
             ),
           ),
@@ -134,41 +127,17 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     );
   }
 
-  acceptPR(BuildContext context) {
-    http.put(widget.mergeUrl, headers: authHeaders).then(respondToRequest);
-  }
-
-  closePR(BuildContext context) {
-    http
-        .patch(widget.reviewUrl,
-            headers: authHeaders, body: '{"state": "closed"}')
-        .then(respondToRequest);
-  }
-
-  void addEmoji(BuildContext context, IconData icon) {
-    String reaction = 'heart';
+  void addEmoji(BuildContext context, IconData icon) async {
+    String reaction = 'HEART';
     if (icon == Icons.thumb_up) {
-      reaction = '+1';
+      reaction = 'THUMBS_UP';
     } else if (icon == Icons.thumb_down) {
-      reaction = '-1';
+      reaction = 'THUMBS_DOWN';
     } else if (icon == Icons.cake) {
-      reaction = 'hooray';
+      reaction = 'HOORAY';
     } else if (icon == FontAwesomeIcons.question) {
-      reaction = 'confused';
+      reaction = 'CONFUSED';
     }
-    http
-        .post(widget.reactionsUrl,
-            headers: reactionHeaders, body: '{"content": "$reaction"}')
-        .then(respondToRequest);
-  }
-
-  respondToRequest(http.Response response) {
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      Navigator.pop(context);
-    } else {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text('Problem completing request: '
-              '${response.statusCode} ${response.body}')));
-    }
+    await graphql.addEmoji(widget.id, reaction);
   }
 }
