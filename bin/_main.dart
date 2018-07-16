@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../full_version/github/parsers.dart';
-import '../../full_version/github/token.dart';
-import '../../full_version/github/utils.dart';
+
+import 'package:dwmpr/full_version/github/parsers.dart';
+import 'package:dwmpr/full_version/github/token.dart';
+import 'package:dwmpr/full_version/github/utils.dart';
 
 /// For more info on GitHub's GraphQL API, check out: https://developer.github.com/v4/
 
