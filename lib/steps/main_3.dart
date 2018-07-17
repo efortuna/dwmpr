@@ -55,21 +55,22 @@ class PullRequestList extends StatelessWidget {
     return ListView(
         children: prs
             .map((PullRequest pr) => ListTile(
-            title: Text(pr.repo.name),
-            subtitle: Text(pr.title),
-            trailing: StarWidget(pr.repo.starCount),
-            onTap: () => showReview(context, pr)))
+                title: Text(pr.repo.name),
+                subtitle: Text(pr.title),
+                trailing: StarWidget(pr.repo.starCount),
+                onTap: () => showReview(context, pr)))
             .toList());
   }
 }
 
 showReview(BuildContext context, PullRequest pullRequest) async {
   var result =
-  await http.get(pullRequest.diffUrl).then((response) => response.body);
+      await http.get(pullRequest.diffUrl).then((response) => response.body);
   return Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => ReviewPage(result, pullRequest.id, pullRequest.url)));
+          builder: (context) =>
+              ReviewPage(result, pullRequest.id, pullRequest.url)));
 }
 
 class FetchDataWidget extends StatelessWidget {

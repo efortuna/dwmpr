@@ -44,7 +44,7 @@ class MyHomePage extends StatelessWidget {
 }
 
 showReview(BuildContext context, PullRequest pullRequest) async {
-  var result = graphql.getDiff(pullRequest);
+  var result = await graphql.getDiff(pullRequest);
   return Navigator.push(
       context,
       MaterialPageRoute(
