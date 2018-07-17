@@ -75,44 +75,6 @@ class FetchDataWidget extends StatelessWidget {
   }
 }
 
-class UserBanner extends StatelessWidget {
-  final User user;
-  UserBanner(this.user);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      CircleAvatar(backgroundImage: NetworkImage(user.avatarUrl), radius: 50.0),
-      Text(
-        user.login,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
-      ),
-    ]);
-  }
-}
-
-class Body extends StatelessWidget {
-  final User user;
-  Body(this.user);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: UserBanner(user),
-        ),
-        Expanded(
-          child: FetchDataWidget(
-              future: graphql.openPullRequestReviews(user.login),
-              builder: (List<PullRequest> prs) => PRList(prs)),
-        ),
-      ],
-    );
-   }	   
-}
-
 class StarWidget extends StatelessWidget {
   final int starCount;
   StarWidget(this.starCount);
