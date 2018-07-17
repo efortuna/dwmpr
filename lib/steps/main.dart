@@ -91,6 +91,22 @@ class UserBanner extends StatelessWidget {
   }
 }
 
+class UserAndPRs extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: FutureBuilder(
+      future: graphql.currentUser(),
+      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done)
+          return Body(snapshot.data);
+        else
+          return CircularProgressIndicator();
+      },
+    ));
+  }
+}
+
 class Body extends StatelessWidget {
   final User user;
   Body(this.user);
@@ -110,7 +126,7 @@ class Body extends StatelessWidget {
         ),
       ],
     );
-   }	   
+  }
 }
 
 class StarWidget extends StatelessWidget {
