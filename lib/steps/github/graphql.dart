@@ -109,6 +109,11 @@ closePR(String reviewUrl) async {
       : throw Exception('Error: ${response.statusCode} ${response.body}');
 }
 
+getDiff(PullRequest pullRequest) async {
+  var response = await http.get(pullRequest.diffUrl);
+  return response.body;
+}
+
 /// Sends a GraphQL query to Github and returns raw response
 Future<String> _query(String query) async {
   final gqlQuery = json.encode({'query': _removeSpuriousSpacing(query)});
