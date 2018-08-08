@@ -18,6 +18,9 @@ final Color githubBlue = Color(0xff4078c0);
 final Color githubGrey = Color(0xff333000);
 final Color githubPurple = Color(0xff6e5494);
 
+final mattGithubAvatar = 'https://avatars1.githubusercontent.com/u/102488?s=400&v=4';
+final emilyGithubAvatar = 'https://avatars2.githubusercontent.com/u/2112792?s=400&v=4';
+
 void main() => runApp(MyApp());
 
 // Root widget of the app
@@ -39,57 +42,23 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Dude, Where's My Pull Request?")));
+        appBar: AppBar(title: Text("Dude, Where's My Pull Request?")),
+        body: Center(child: UserBanner()));
   }
 }
 
-showReview(BuildContext context, PullRequest pullRequest) async {
-  var result = graphql.getDiff(pullRequest);
-  return Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) =>
-              ReviewPage(result, pullRequest.id, pullRequest.url)));
-}
-
-class FetchDataWidget extends StatelessWidget {
-  final Future<List<PullRequest>> future;
-  final Function builder;
-
-  FetchDataWidget({@required this.future, @required this.builder});
-
+class UserBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: future,
-        builder:
-            (BuildContext context, AsyncSnapshot<List<PullRequest>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return snapshot.data.length != 0
-                ? builder(snapshot.data)
-                : Center(child: Text('No PR reviews today!'));
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        });
-  }
-}
-
-class StarWidget extends StatelessWidget {
-  final int starCount;
-  StarWidget(this.starCount);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Icon(Icons.star, color: githubPurple),
-        Text(_prettyPrintInt(starCount)),
-      ],
+    return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(children: [
+      CircleAvatar(backgroundImage: NetworkImage(mattGithubAvatar), radius: 50.0),
+      Text(
+        'mjohnsullivan',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
+      ),
+    ])
     );
   }
-
-  String _prettyPrintInt(int num) =>
-      (num >= 1000) ? (num / 1000.0).toStringAsFixed(1) + 'k' : '$num';
 }
