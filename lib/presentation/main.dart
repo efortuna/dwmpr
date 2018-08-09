@@ -27,7 +27,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Dude, Where's My Pull Request?",
       theme: ThemeData(
         primaryColor: githubGrey,
         accentColor: githubBlue,
