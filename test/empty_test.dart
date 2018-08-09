@@ -17,25 +17,7 @@ const url = 'https://api.github.com/graphql';
 const headers = {'Authorization': 'bearer $token'};
 
 void main() {
-  test('Lets test some GraphQL', () async {
-    final login = 'mjohnsullivan';
-
-    final query = '''
-      query {
-        user(login: "$login") {
-          login
-          name
-          avatarUrl
-        }
-      }
-    ''';
-
-    final res = await http.post(
-      url,
-      headers: headers,
-      body: json.encode({'query': removeSpuriousSpacing(query)}),
-    );
-
-    // print(parseUser(res.body));
+  test('Lets test us some GraphQL!', () async {
+    expect(true, true);
   });
 }
