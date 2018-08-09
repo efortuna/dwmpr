@@ -10,6 +10,7 @@ import 'dart:async';
 import 'github/graphql.dart' as graphql;
 import 'github/user.dart';
 import 'github/pullrequest.dart';
+import 'review_code.dart';
 
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
