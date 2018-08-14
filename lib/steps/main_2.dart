@@ -18,6 +18,11 @@ final Color githubBlue = Color(0xff4078c0);
 final Color githubGrey = Color(0xff333000);
 final Color githubPurple = Color(0xff6e5494);
 
+final mattGithubAvatar =
+    'https://avatars1.githubusercontent.com/u/102488?s=400&v=4';
+final emilyGithubAvatar =
+    'https://avatars2.githubusercontent.com/u/2112792?s=400&v=4';
+
 void main() => runApp(MyApp());
 
 // Root widget of the app
@@ -40,9 +45,14 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text("Dude, Where's My Pull Request?")),
-        body: FetchDataWidget(
-            future: graphql.openPullRequestReviews('efortuna'),
-            builder: (List<PullRequest> prs) => PullRequestList(prs)));
+        body: Center(
+            child: Column(children: [
+          UserBanner(),
+          Expanded(
+              child: FetchDataWidget(
+                  future: graphql.openPullRequestReviews('efortuna'),
+                  builder: (List<PullRequest> prs) => PullRequestList(prs)))
+        ])));
   }
 }
 
@@ -62,13 +72,20 @@ class PullRequestList extends StatelessWidget {
   }
 }
 
-showReview(BuildContext context, PullRequest pullRequest) async {
-  var result =
-      await http.get(pullRequest.diffUrl).then((response) => response.body);
-  return Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ReviewPage(result, pullRequest.id, pullRequest.url)));
+class UserBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(children: [
+          CircleAvatar(
+              backgroundImage: NetworkImage(mattGithubAvatar), radius: 50.0),
+          Text(
+            'mjohnsullivan',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
+          ),
+        ]));
+  }
 }
 
 class FetchDataWidget extends StatelessWidget {
