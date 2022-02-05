@@ -11,6 +11,7 @@ ios/Podfile.lock
 build/
 
 .flutter-plugins
+.flutter-plugins-dependencies
 packages
 pubspec.lock
 
