@@ -35,7 +35,9 @@ dependencies:
   http: ^0.13.4
 
   font_awesome_flutter: ^9.2.0
-  bidirectional_scroll_view: ^0.0.5
+  bidirectional_scroll_view:
+    git:
+      url: https://github.com/AmSn6/flutter-bidirectional_scrollview_plugin.git
 
 dev_dependencies:
   flutter_test:
