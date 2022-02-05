@@ -95,14 +95,15 @@ addEmoji(String id, String reaction) async {
 }
 
 acceptPR(String reviewUrl) async {
-  var response = await http.put('$reviewUrl/merge', headers: postHeaders);
+  var response =
+      await http.put(Uri.parse('$reviewUrl/merge'), headers: postHeaders);
   return response.statusCode == 200
       ? response.body
       : throw Exception('Error: ${response.statusCode} ${response.body}');
 }
 
 closePR(String reviewUrl) async {
-  var response = await http.patch(reviewUrl,
+  var response = await http.patch(Uri.parse(reviewUrl),
       headers: postHeaders, body: '{"state": "closed"}');
   return response.statusCode == 200
       ? response.body
@@ -110,14 +111,15 @@ closePR(String reviewUrl) async {
 }
 
 getDiff(PullRequest pullRequest) async {
-  var response = await http.get(pullRequest.diffUrl);
+  var response = await http.get(Uri.parse(pullRequest.diffUrl));
   return response.body;
 }
 
 /// Sends a GraphQL query to Github and returns raw response
 Future<String> _query(String query) async {
   final gqlQuery = json.encode({'query': _removeSpuriousSpacing(query)});
-  final response = await http.post(url, headers: headers, body: gqlQuery);
+  final response =
+      await http.post(Uri.parse(url), headers: headers, body: gqlQuery);
   return response.statusCode == 200
       ? response.body
       : throw Exception('Error: ${response.statusCode}');

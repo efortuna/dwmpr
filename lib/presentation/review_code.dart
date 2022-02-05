@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
 import 'package:http/http.dart' as http;
 
-import 'github/token.dart';
+import 'package:dwmpr/full_version/github/token.dart';
 import 'github/graphql.dart' as graphql;
 
 class ReviewPage extends StatelessWidget {
