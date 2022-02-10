@@ -5,6 +5,8 @@ on:
     - master
     paths:
     - .github/workflows/semgrep.yml
+  schedule:
+    - cron: '0 0 * * *'
 name: Semgrep
 jobs:
   semgrep:
@@ -13,14 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: returntocorp/semgrep-action@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
         
         # Scan code using project's configuration on https://semgrep.dev/manage
-      - uses: returntocorp/semgrep-action@v1
-
-        # Set GITHUB_TOKEN to leave automatic comments on your pull requests.
-        #env:
-        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
