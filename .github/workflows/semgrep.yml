@@ -17,6 +17,7 @@ jobs:
     - uses: returntocorp/semgrep-action@v1
       with:
         publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
+        config: s/BGYv
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
         # Scan code using project's configuration on https://semgrep.dev/manage
