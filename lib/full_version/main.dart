@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart' as http;
 
 import 'github/graphql.dart' as graphql;
 import 'github/user.dart';
@@ -24,11 +23,12 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = ThemeData();
     return MaterialApp(
       title: "Dude, Where's My Pull Request?",
-      theme: ThemeData(
-        primaryColor: githubGrey,
-        accentColor: githubBlue,
+      theme: theme.copyWith(
+        colorScheme: theme.colorScheme
+            .copyWith(primary: githubGrey, secondary: githubBlue),
       ),
       home: MyHomePage(),
     );
@@ -130,12 +130,13 @@ class PullRequestList extends StatelessWidget {
   }
 
   showReview(BuildContext context, PullRequest pullRequest) async {
-    var result = await graphql.getDiff(pullRequest);
+    var diff = await graphql.getDiff(pullRequest);
+    var semgrepResult = await graphql.getSemgrepResult(pullRequest);
     return Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                ReviewPage(result, pullRequest.id, pullRequest.url)));
+            builder: (context) => ReviewPage(
+                diff, pullRequest.id, pullRequest.url, semgrepResult)));
   }
 }
 

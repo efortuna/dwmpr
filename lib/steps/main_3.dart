@@ -64,8 +64,9 @@ class PullRequestList extends StatelessWidget {
 }
 
 showReview(BuildContext context, PullRequest pullRequest) async {
-  var result =
-      await http.get(pullRequest.diffUrl).then((response) => response.body);
+  var result = await http
+      .get(Uri.parse(pullRequest.diffUrl))
+      .then((response) => response.body);
   return Navigator.push(
       context,
       MaterialPageRoute(

@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math' as math;
 
-import 'github/token.dart';
+import 'package:dwmpr/full_version/github/token.dart';
 import 'github/graphql.dart' as graphql;
 
 class ReviewPage extends StatelessWidget {
@@ -41,7 +41,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     Icons.thumb_down,
     Icons.favorite,
     FontAwesomeIcons.question,
-    Icons.cake,
+    FontAwesomeIcons.rocket,
   ];
 
   @override
@@ -65,7 +65,8 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
               heroTag: null,
               backgroundColor: Theme.of(context).cardColor,
               mini: true,
-              child: Icon(icons[index], color: Theme.of(context).accentColor),
+              child: Icon(icons[index],
+                  color: Theme.of(context).colorScheme.secondary),
               onPressed: () {
                 if (icons[index] == Icons.check) {
                   graphql.acceptPR(widget.reviewUrl);
@@ -110,8 +111,8 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
       reaction = 'THUMBS_UP';
     } else if (icon == Icons.thumb_down) {
       reaction = 'THUMBS_DOWN';
-    } else if (icon == Icons.cake) {
-      reaction = 'HOORAY';
+    } else if (icon == FontAwesomeIcons.rocket) {
+      reaction = 'ROCKET';
     } else if (icon == FontAwesomeIcons.question) {
       reaction = 'CONFUSED';
     }
