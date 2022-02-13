@@ -1,3 +1,4 @@
+import 'package:dwmpr/full_version/main.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:convert';
@@ -10,7 +11,6 @@ import 'github/semgrepresult.dart';
 
 final Color githubRed = Color(0xffbd2c00);
 final Color githubGreen = Color(0xff6cc644);
-final Color githubGrey = Color(0xff333000);
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
@@ -95,7 +95,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton(
               heroTag: null,
-              backgroundColor: Color(0xff333000),
+              backgroundColor: githubGrey,
               mini: true,
               child: Icon(icons[index]),
               onPressed: () {
