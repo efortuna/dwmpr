@@ -11,6 +11,7 @@ import 'parsers.dart';
 import 'pullrequest.dart';
 import 'token.dart';
 import 'user.dart';
+import 'semgrepresult.dart';
 
 final url = 'https://api.github.com/graphql';
 final headers = {'Authorization': 'bearer $token'};
@@ -50,7 +51,7 @@ Future<User> currentUser() async {
 Future<List<PullRequest>> openPullRequestReviews(String login) async {
   final query = '''
     query GetOpenReviewRequests {
-      search(query: "type:pr state:open review-requested:$login", type: ISSUE, first: 100) {
+      search(query: "type:pr state:open user:$login", type: ISSUE, first: 100) {
         issueCount
         pageInfo {
           endCursor
@@ -115,6 +116,15 @@ getDiff(PullRequest pullRequest) async {
   return response.body;
 }
 
+Future<SemgrepResult> getSemgrepResult(PullRequest pullRequest) async {
+  var prUrl = pullRequest.url.substring(0, pullRequest.url.indexOf('pull')) +
+      'actions/runs';
+  final response = await http.get(Uri.parse(prUrl), headers: headers);
+  if (response.statusCode != 200)
+    throw Exception('Error: ${response.statusCode}');
+  return await _parseWorkflowRunsForPR(pullRequest, response.body);
+}
+
 /// Sends a GraphQL query to Github and returns raw response
 Future<String> _query(String query) async {
   final gqlQuery = json.encode({'query': _removeSpuriousSpacing(query)});
@@ -123,6 +133,46 @@ Future<String> _query(String query) async {
   return response.statusCode == 200
       ? response.body
       : throw Exception('Error: ${response.statusCode}');
+}
+
+/// breaks the paser.dart separation. sorry. I blame GraphQL+GithubActions not
+/// being compatible. Parses the json for a set of workflows for a particular
+/// repo, and then updates the corresponding pr. if there is a match.
+Future<SemgrepResult> _parseWorkflowRunsForPR(
+    PullRequest pr, String resBody) async {
+  List runs = json.decode(resBody)['workflow_runs'];
+  for (var run in runs) {
+    for (var a_pr in run['pull_requests']) {
+      if (a_pr['url'] == pr.url) {
+        // this is the workflow run we want.
+        final response =
+            await http.get(Uri.parse(run['jobs_url']), headers: headers);
+        if (response.statusCode != 200)
+          throw Exception('Error: ${response.statusCode}');
+        // Just gonna take the first one.... is this okay???
+        List jobs = json.decode(response.body)['jobs'];
+        var job = jobs[0];
+        if (job['conclusion'] == 'failure') {
+          final response_url =
+              await http.get(Uri.parse(job['url'] + '/logs'), headers: headers);
+          if (response_url.statusCode != 200)
+            throw Exception('Error: ${response.statusCode}');
+          //_parseSemgrepLogs(pr, response_url.body);
+          return SemgrepResult(false);
+        }
+      }
+    }
+  }
+  return SemgrepResult(true);
+}
+
+_parseSemgrepLogs(PullRequest pr, String logs) {
+  // TODO. not currently used.
+  final separator = '===';
+  var issues_index =
+      logs.indexOf('$separator analyzing new issues in this scan');
+  logs.substring(
+      issues_index, logs.indexOf(separator, issues_index + separator.length));
 }
 
 _removeSpuriousSpacing(String str) => str.replaceAll(RegExp(r'\s+'), ' ');

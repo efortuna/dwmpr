@@ -130,12 +130,13 @@ class PullRequestList extends StatelessWidget {
   }
 
   showReview(BuildContext context, PullRequest pullRequest) async {
-    var result = await graphql.getDiff(pullRequest);
+    var diff = await graphql.getDiff(pullRequest);
+    var semgrepResult = await graphql.getSemgrepResult(pullRequest);
     return Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                ReviewPage(result, pullRequest.id, pullRequest.url)));
+            builder: (context) => ReviewPage(
+                diff, pullRequest.id, pullRequest.url, semgrepResult)));
   }
 }
 

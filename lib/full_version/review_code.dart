@@ -6,18 +6,23 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math' as math;
 
 import 'github/graphql.dart' as graphql;
+import 'github/semgrepresult.dart';
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
   final String id;
   final String reviewUrl;
+  final SemgrepResult semgrepResult;
 
-  ReviewPage(this.prDiff, this.id, this.reviewUrl);
+  ReviewPage(this.prDiff, this.id, this.reviewUrl, this.semgrepResult);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Review Pull Request')),
+      appBar: AppBar(
+        title: Text('Review Pull Request'),
+        backgroundColor: semgrepResult.success ? Colors.blue : Colors.red,
+      ),
       body: BidirectionalScrollViewPlugin(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
