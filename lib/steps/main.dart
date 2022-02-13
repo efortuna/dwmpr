@@ -18,8 +18,10 @@ final Color githubBlue = Color(0xff4078c0);
 final Color githubGrey = Color(0xff333000);
 final Color githubPurple = Color(0xff6e5494);
 
-final mattGithubAvatar = 'https://avatars1.githubusercontent.com/u/102488?s=400&v=4';
-final emilyGithubAvatar = 'https://avatars2.githubusercontent.com/u/2112792?s=400&v=4';
+final mattGithubAvatar =
+    'https://avatars1.githubusercontent.com/u/102488?s=400&v=4';
+final emilyGithubAvatar =
+    'https://avatars2.githubusercontent.com/u/2112792?s=400&v=4';
 
 void main() => runApp(MyApp());
 
@@ -27,11 +29,12 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = ThemeData();
     return MaterialApp(
       title: "Dude, Where's My Pull Request?",
-      theme: ThemeData(
-        primaryColor: githubGrey,
-        accentColor: githubBlue,
+      theme: theme.copyWith(
+        colorScheme: theme.colorScheme
+            .copyWith(primary: githubGrey, secondary: githubBlue),
       ),
       home: MyHomePage(),
     );
@@ -51,14 +54,14 @@ class UserBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(children: [
-      CircleAvatar(backgroundImage: NetworkImage(mattGithubAvatar), radius: 50.0),
-      Text(
-        'mjohnsullivan',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
-      ),
-    ])
-    );
+        padding: const EdgeInsets.all(10.0),
+        child: Column(children: [
+          CircleAvatar(
+              backgroundImage: NetworkImage(mattGithubAvatar), radius: 50.0),
+          Text(
+            'mjohnsullivan',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
+          ),
+        ]));
   }
 }

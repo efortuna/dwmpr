@@ -29,10 +29,12 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = ThemeData();
     return MaterialApp(
-      theme: ThemeData(
-        primaryColor: githubGrey,
-        accentColor: githubBlue,
+      title: "Dude, Where's My Pull Request?",
+      theme: theme.copyWith(
+        colorScheme: theme.colorScheme
+            .copyWith(primary: githubGrey, secondary: githubBlue),
       ),
       home: MyHomePage(),
     );

@@ -69,7 +69,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     Icons.thumb_down,
     Icons.favorite,
     FontAwesomeIcons.question,
-    Icons.cake,
+    Icons.cake, // airplanemode_active auto_awesome_rounded
   ];
 
   @override
@@ -93,7 +93,8 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
               heroTag: null,
               backgroundColor: Theme.of(context).cardColor,
               mini: true,
-              child: Icon(icons[index], color: Theme.of(context).accentColor),
+              child: Icon(icons[index],
+                  color: Theme.of(context).colorScheme.secondary),
               onPressed: () {
                 if (icons[index] == Icons.check) {
                   graphql.acceptPR(widget.reviewUrl);
