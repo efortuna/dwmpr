@@ -20,4 +20,25 @@ class ReviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(appBar: AppBar(title: Text('Review Pull Request')));
   }
+
+  RichText styledCode(String prDiff) {
+    var lines = <TextSpan>[];
+    for (var line in LineSplitter.split(prDiff)) {
+      var color = Colors.black;
+      if (line.startsWith('+')) {
+        color = Colors.green;
+      } else if (line.startsWith('-')) {
+        color = Colors.red;
+      }
+      lines.add(TextSpan(
+          text: line + '\n',
+          style: TextStyle(color: color, fontFamily: 'RobotoMono')));
+    }
+    return RichText(softWrap: false, text: TextSpan(children: lines));
+  }
+
+  acceptPR(BuildContext context) async {
+    await graphql.acceptPR(reviewUrl);
+    Navigator.pop(context);
+  }
 }
