@@ -10,6 +10,7 @@ import 'github/semgrepresult.dart';
 
 final Color githubRed = Color(0xffbd2c00);
 final Color githubGreen = Color(0xff6cc644);
+final Color githubGrey = Color(0xff333000);
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
@@ -21,17 +22,17 @@ class ReviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var color = semgrepResult.success ? githubGreen : githubRed;
     return Scaffold(
-      appBar: AppBar(
-          title: Text('Review Pull Request'),
-          backgroundColor: semgrepResult.success ? githubGreen : githubRed),
+      appBar:
+          AppBar(title: Text('Review Pull Request'), backgroundColor: color),
       body: BidirectionalScrollViewPlugin(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: styledCode(),
         ),
       ),
-      floatingActionButton: FancyFab(id, reviewUrl),
+      floatingActionButton: FancyFab(id, reviewUrl, color),
     );
   }
 
@@ -55,7 +56,8 @@ class ReviewPage extends StatelessWidget {
 class FancyFab extends StatefulWidget {
   final String id;
   final String reviewUrl;
-  FancyFab(this.id, this.reviewUrl);
+  final Color buttonColor;
+  FancyFab(this.id, this.reviewUrl, this.buttonColor);
 
   @override
   createState() => FancyFabState();
@@ -93,10 +95,9 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton(
               heroTag: null,
-              backgroundColor: Theme.of(context).cardColor,
+              backgroundColor: Color(0xff333000),
               mini: true,
-              child: Icon(icons[index],
-                  color: Theme.of(context).colorScheme.secondary),
+              child: Icon(icons[index]),
               onPressed: () {
                 if (icons[index] == Icons.check) {
                   graphql.acceptPR(widget.reviewUrl);
@@ -113,6 +114,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
       }).toList()
         ..add(
           FloatingActionButton(
+            backgroundColor: widget.buttonColor,
             child: AnimatedBuilder(
               animation: _controller,
               builder: (BuildContext context, Widget child) {
