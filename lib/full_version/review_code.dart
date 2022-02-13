@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'dart:convert';
 import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:math' as math;
 
 import 'github/graphql.dart' as graphql;
 import 'github/semgrepresult.dart';

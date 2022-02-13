@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:bidirectional_scroll_view/bidirectional_scroll_view.dart';
 import 'package:http/http.dart' as http;
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'dart:math' as math;
 
 import 'package:dwmpr/full_version/github/token.dart';
 import 'github/graphql.dart' as graphql;
