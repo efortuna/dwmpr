@@ -45,6 +45,17 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
+showReview(BuildContext context, PullRequest pullRequest) async {
+  var result = await http
+      .get(Uri.parse(pullRequest.diffUrl))
+      .then((response) => response.body);
+  return Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              ReviewPage(result, pullRequest.id, pullRequest.url)));
+}
+
 class FetchDataWidget extends StatelessWidget {
   final Future<List<PullRequest>> future;
   final Function builder;
