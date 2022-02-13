@@ -9,8 +9,11 @@ ios/.generated/
 ios/Pods/
 ios/Podfile.lock
 build/
+web/
+windows/
 
 .flutter-plugins
+.flutter-plugins-dependencies
 packages
 pubspec.lock
 

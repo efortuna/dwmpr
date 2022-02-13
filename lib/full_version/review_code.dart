@@ -6,18 +6,25 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math' as math;
 
 import 'github/graphql.dart' as graphql;
+import 'github/semgrepresult.dart';
+
+final Color githubRed = Color(0xffbd2c00);
+final Color githubGreen = Color(0xff6cc644);
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
   final String id;
   final String reviewUrl;
+  final SemgrepResult semgrepResult;
 
-  ReviewPage(this.prDiff, this.id, this.reviewUrl);
+  ReviewPage(this.prDiff, this.id, this.reviewUrl, this.semgrepResult);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Review Pull Request')),
+      appBar: AppBar(
+          title: Text('Review Pull Request'),
+          backgroundColor: semgrepResult.success ? githubGreen : githubRed),
       body: BidirectionalScrollViewPlugin(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -64,7 +71,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
     Icons.thumb_down,
     Icons.favorite,
     FontAwesomeIcons.question,
-    Icons.cake,
+    FontAwesomeIcons.rocket,
   ];
 
   @override
@@ -88,7 +95,8 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
               heroTag: null,
               backgroundColor: Theme.of(context).cardColor,
               mini: true,
-              child: Icon(icons[index], color: Theme.of(context).accentColor),
+              child: Icon(icons[index],
+                  color: Theme.of(context).colorScheme.secondary),
               onPressed: () {
                 if (icons[index] == Icons.check) {
                   graphql.acceptPR(widget.reviewUrl);
@@ -133,8 +141,8 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
       reaction = 'THUMBS_UP';
     } else if (icon == Icons.thumb_down) {
       reaction = 'THUMBS_DOWN';
-    } else if (icon == Icons.cake) {
-      reaction = 'HOORAY';
+    } else if (icon == FontAwesomeIcons.rocket) {
+      reaction = 'ROCKET';
     } else if (icon == FontAwesomeIcons.question) {
       reaction = 'CONFUSED';
     }

@@ -30,7 +30,6 @@ List<PullRequest> parseOpenPullRequestReviews(String resBody) {
     final prTitle = node['title'];
     final prUrl = node['url'];
     final pr = PullRequest(prId, prTitle, prUrl, repo);
-
     return pr;
   }).toList();
 }

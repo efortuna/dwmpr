@@ -31,7 +31,7 @@ void main() {
     ''';
 
     final res = await http.post(
-      url,
+      Uri.parse(url),
       headers: headers,
       body: json.encode({'query': removeSpuriousSpacing(query)}),
     );
