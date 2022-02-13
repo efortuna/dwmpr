@@ -1,3 +1,4 @@
+import 'package:dwmpr/full_version/main.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:convert';
@@ -31,7 +32,7 @@ class ReviewPage extends StatelessWidget {
           child: styledCode(),
         ),
       ),
-      floatingActionButton: FancyFab(id, reviewUrl),
+      floatingActionButton: FancyFab(id, reviewUrl, color),
     );
   }
 
@@ -55,7 +56,8 @@ class ReviewPage extends StatelessWidget {
 class FancyFab extends StatefulWidget {
   final String id;
   final String reviewUrl;
-  FancyFab(this.id, this.reviewUrl);
+  final Color buttonColor;
+  FancyFab(this.id, this.reviewUrl, this.buttonColor);
 
   @override
   createState() => FancyFabState();
@@ -93,10 +95,9 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton(
               heroTag: null,
-              backgroundColor: Theme.of(context).cardColor,
+              backgroundColor: githubGrey,
               mini: true,
-              child: Icon(icons[index],
-                  color: Theme.of(context).colorScheme.secondary),
+              child: Icon(icons[index]),
               onPressed: () {
                 if (icons[index] == Icons.check) {
                   graphql.acceptPR(widget.reviewUrl);
