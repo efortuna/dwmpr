@@ -15,7 +15,7 @@ import 'review_code.dart';
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
 final Color githubBlue = Color(0xff4078c0);
-final Color githubGrey = Color(0xff333000);
+final Color githubGrey = Color(0xff171515);
 final Color githubPurple = Color(0xff6e5494);
 
 final githubAvatar =
