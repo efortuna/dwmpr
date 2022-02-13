@@ -14,14 +14,11 @@ import 'review_code.dart';
 
 // Github brand colors
 // https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
+// Github brand colors
+// https://gist.github.com/christopheranderton/4c88326ab6a5604acc29
 final Color githubBlue = Color(0xff4078c0);
-final Color githubGrey = Color(0xff171515);
+final Color githubGrey = Color(0xff333000);
 final Color githubPurple = Color(0xff6e5494);
-
-final githubAvatar =
-    'http://www.konbini.com/wp-content/blogs.dir/3/files/2016/04/amiral1-810x405.jpg';
-final altGithubAvatar =
-    'https://avatars1.githubusercontent.com/u/102488?s=400&v=4';
 
 void main() => runApp(MyApp());
 
@@ -31,7 +28,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData();
     return MaterialApp(
-      title: "Dude, Where's My Pull Request?",
       theme: theme.copyWith(
         colorScheme: theme.colorScheme
             .copyWith(primary: githubGrey, secondary: githubBlue),
@@ -44,7 +40,8 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+        appBar: AppBar(title: Text("Dude, Where's My Pull Request?")));
   }
 }
 
