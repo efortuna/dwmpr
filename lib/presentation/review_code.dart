@@ -6,13 +6,15 @@ import 'package:http/http.dart' as http;
 
 import 'package:dwmpr/full_version/github/token.dart';
 import 'github/graphql.dart' as graphql;
+import 'github/semgrepresult.dart';
 
 class ReviewPage extends StatelessWidget {
   final String prDiff;
   final String id;
   final String reviewUrl;
+  final SemgrepResult semgrepResult;
 
-  ReviewPage(this.prDiff, this.id, this.reviewUrl);
+  ReviewPage(this.prDiff, this.id, this.reviewUrl, [this.semgrepResult]);
 
   @override
   Widget build(BuildContext context) {
