@@ -47,7 +47,8 @@ class ReviewPage extends StatelessWidget {
 class FancyFab extends StatefulWidget {
   final String id;
   final String reviewUrl;
-  FancyFab(this.id, this.reviewUrl);
+  final Color buttonColor;
+  FancyFab(this.id, this.reviewUrl, [this.buttonColor = null]);
 
   @override
   createState() => FancyFabState();
@@ -104,6 +105,7 @@ class FancyFabState extends State<FancyFab> with TickerProviderStateMixin {
       }).toList()
         ..add(
           FloatingActionButton(
+            backgroundColor: widget.buttonColor,
             child: AnimatedBuilder(
               animation: _controller,
               builder: (BuildContext context, Widget child) {
