@@ -10,4 +10,4 @@ Instructions for running:
         const token = 'my personal Github token here';
         
 - ...Profit??
-- Watch out for BidirectionalScrollViewPlugin
+- Watch out for BidirectionalScrollViewPlugin hello world
