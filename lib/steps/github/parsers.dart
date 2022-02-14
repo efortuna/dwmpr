@@ -26,10 +26,13 @@ List<PullRequest> parseOpenPullRequestReviews(String resBody) {
     final repoStarCount = node['repository']['stargazers']['totalCount'];
     final repo = Repository(repoName, repoUrl, repoStarCount);
 
+    final author = node['author']['login'];
+    final authorAvatar = node['author']['avatarUrl'];
+
     final prId = node['id'];
     final prTitle = node['title'];
     final prUrl = node['url'];
-    final pr = PullRequest(prId, prTitle, prUrl, repo);
+    final pr = PullRequest(prId, prTitle, prUrl, repo, author, authorAvatar);
 
     return pr;
   }).toList();

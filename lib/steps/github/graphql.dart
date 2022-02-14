@@ -51,7 +51,7 @@ Future<User> currentUser() async {
 Future<List<PullRequest>> openPullRequestReviews(String login) async {
   final query = '''
     query GetOpenReviewRequests {
-      search(query: "type:pr state:open user:$login", type: ISSUE, first: 100) {
+      search(query: "type:pr state:open user:$login", type: ISSUE, first: 50) {
         issueCount
         pageInfo {
           endCursor
@@ -70,6 +70,10 @@ Future<List<PullRequest>> openPullRequestReviews(String login) async {
               title
               id
               url
+              author {
+                login
+                avatarUrl
+              }
             }
           }
         }

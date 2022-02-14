@@ -126,6 +126,9 @@ class StarWidget extends StatelessWidget {
     );
   }
 
-  String _prettyPrintInt(int num) =>
-      (num >= 1000) ? (num / 1000.0).toStringAsFixed(1) + 'k' : '$num';
+  String _prettyPrintInt(int num) {
+    var numStr = num.toString();
+    if (num >= 1000) return (num / 1000.0).toStringAsFixed(1) + 'k';
+    return numStr.padLeft(6 - numStr.length);
+  }
 }
