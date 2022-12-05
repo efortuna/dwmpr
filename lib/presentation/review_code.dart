@@ -21,7 +21,14 @@ class ReviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('Review Pull Request')));
+    return Scaffold(
+        appBar: AppBar(title: Text('Review Pull Request')),
+        body: BidirectionalScrollViewPlugin(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: styledCode(prDiff),
+          ),
+        ));
   }
 
   RichText styledCode(String prDiff) {
